@@ -25,6 +25,7 @@
     "js": "^0.1.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.13.5",
+    "node-geocoder": "^3.27.0",
     "pg": "^8.7.1"
   },
   "devDependencies": {
