@@ -3,9 +3,10 @@ const pool = require("./database/db");
 const routes = express.Router();
 const user = require("../src/controller/user/usercontroller");
 const bcrypt = require("bcrypt");
-const workspace = require("./controller/workspacecontroller/workspacecontroller");
+const workspace = require("./controller/workspace/workspacecontroller");
 const admin = require("../src/controller/admin/admin");
 const jwt = require("jsonwebtoken");
+const auth = require("./services/authentication");
 routes.get("/", async (req, res) => {
   try {
     res.json({ message: "Conexão está OK!" });
@@ -148,5 +149,18 @@ routes.post("/admin/auth", async (req, res) => {
     console.error(error);
     return res.status(400).send({ error: error });
   }
+});
+
+routes.get("/admin/getUser", auth.validadeToken, async (req, res) => {
+  const result = await pool.query(
+    "SELECT idusuario,login,cpf,rg,datanascimento,email from Usuario where aprovado = false"
+  );
+  return res.send({ users: result.rows });
+});
+routes.get("/admin/getWorkspace", auth.validadeToken, async (req, res) => {
+  const result = await pool.query(
+    "SELECT idoficina,login,nome,cnpj,razaosocial,datacriacao from oficina where aprovado = false"
+  );
+  return res.send({ users: result.rows });
 });
 module.exports = routes;

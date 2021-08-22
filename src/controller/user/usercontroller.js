@@ -27,7 +27,7 @@ const user = {
       );
       const _idUser = result.rows[0].IdUsuario;
       const getEnderecoInfo = returnLatLon(endereco);
-      await pool.query("INSERT INTO ENDERECO(");
+      //await pool.query("INSERT INTO ENDERECO(");
     } catch (error) {
       console.log(error);
     }
