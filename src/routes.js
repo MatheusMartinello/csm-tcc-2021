@@ -4,6 +4,8 @@ const routes = express.Router();
 const user = require("../src/controller/user/usercontroller");
 const bcrypt = require("bcrypt");
 const workspace = require("./controller/workspacecontroller/workspacecontroller");
+const admin = require("../src/controller/admin/admin");
+const jwt = require("jsonwebtoken");
 routes.get("/", async (req, res) => {
   try {
     res.json({ message: "Conexão está OK!" });
@@ -48,10 +50,11 @@ routes.post("/user/authenticate", async (req, res) => {
       "select login,senha from usuario where login = $1",
       [login]
     );
-    console.log(getUser);
-    if (!getUser.rows[0])
-      return res.status(400).send({ error: "Login ou senha Inválidos!" });
-    if (!(await bcrypt.compare(password, getUser.rows[0].senha)))
+
+    if (
+      !getUser.rows[0] ||
+      !(await bcrypt.compare(password, getUser.rows[0].senha))
+    )
       return res.status(400).send({ error: "Login ou senha Inválidos!" });
     const token = await user.authUser(req.body);
     if (token == "error") throw "Algo deu de errado na autenticação";
@@ -107,15 +110,42 @@ routes.post("/workspace/authenticate", async (req, res) => {
       "select login,senha from oficina where login = $1",
       [login]
     );
-    console.log(getUser);
-    if (!getUser.rows[0])
-      return res.status(400).send({ error: "Login ou senha Inválidos!" });
-    if (!(await bcrypt.compare(password, getUser.rows[0].senha)))
+
+    if (
+      !getUser.rows[0] ||
+      !(await bcrypt.compare(password, getUser.rows[0].senha))
+    )
       return res.status(400).send({ error: "Login ou senha Inválidos!" });
     const token = await workspace.authUser(req.body);
     if (token == "error") throw "Algo deu de errado na autenticação";
     return res.send({ message: "Login logado com sucesso", token: token });
   } catch (error) {
+    return res.status(400).send({ error: error });
+  }
+});
+routes.post("/admin/register", async (req, res) => {
+  await admin.Register(req.body);
+  return res.send({ mensage: "Registado com sucesso" });
+});
+routes.post("/admin/auth", async (req, res) => {
+  try {
+    const { login, password } = req.body;
+    const getUser = await pool.query(
+      "select idusuarioadmin,login,senha from usuariosadmin where login = $1",
+      [login]
+    );
+    if (
+      !getUser.rows[0] ||
+      !(await bcrypt.compare(password, getUser.rows[0].senha))
+    )
+      return res.status(400).send({ error: "Login ou senha Inválidos!" });
+
+    const token = await admin.authUser(req.body);
+
+    if (token == "error") throw "Algo deu de errado na autenticação";
+    return res.send({ message: "Login logado com sucesso", token: token });
+  } catch (error) {
+    console.error(error);
     return res.status(400).send({ error: error });
   }
 });

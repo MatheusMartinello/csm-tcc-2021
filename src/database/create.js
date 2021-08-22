@@ -18,7 +18,6 @@ const db = {
       //     +");"
       // );
       const test = await pool.query("SELECT NOW()");
-      console.log(test.rows[0]);
     } catch (err) {
       console.log(err);
     }

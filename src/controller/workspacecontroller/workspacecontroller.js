@@ -21,7 +21,7 @@ const workspace = {
   }) {
     try {
       password = await bcrypt.hash(password, 10);
-      console.log(password);
+      
       await pool.query(
         "INSERT INTO oficina(nome,razaosocial,cnpj,login,email,senha,datacriacao) values ($1,$2,$3,$4,$5,$6,$7)",
         [name, razaosocial, cnpj, login, email, password, bornDate]
