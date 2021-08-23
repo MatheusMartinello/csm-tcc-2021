@@ -159,7 +159,7 @@ routes.get("/admin/getUser", auth.validadeToken, async (req, res) => {
 });
 routes.get("/admin/getWorkspace", auth.validadeToken, async (req, res) => {
   const result = await pool.query(
-    "SELECT idoficina,login,nome,cnpj,razaosocial,datacriacao from oficina where aprovado = false"
+    "SELECT idoficina,login,nome,cnpj,razaosocial,datacriacao,aprovado from oficina where aprovado = false"
   );
   return res.send({ users: result.rows });
 });
