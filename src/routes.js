@@ -153,7 +153,7 @@ routes.post("/admin/auth", async (req, res) => {
 
 routes.get("/admin/getUser", auth.validadeToken, async (req, res) => {
   const result = await pool.query(
-    "SELECT idusuario,login,cpf,rg,datanascimento,email from Usuario where aprovado = false"
+    "SELECT idusuario,login,cpf,rg,datanascimento,email,aprovado from Usuario where aprovado = false"
   );
   return res.send({ users: result.rows });
 });
