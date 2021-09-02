@@ -21,6 +21,7 @@ const user = {
         "insert into usuario (nome,email,cpf,rg,datanascimento,login,senha) values($1,$2,$3,$4,$5,$6,$7)",
         [name, email, cpf, rg, bornDate, login, password]
       );
+
       const result = await pool.query(
         "SELECT IdUsuario FROM usuario where Login = $1",
         [login]
@@ -50,6 +51,33 @@ const user = {
     } catch (error) {
       return error;
     }
+  },
+  async registerCar({ idusuario, placa, modelo, marca, renavam }) {
+    try {
+      await pool.query(
+        "INSERT INTO carro(idusuario,placa,modelo,marca,renavam) values ($1,$2,$3,$4,$5)",
+        [idusuario, placa, modelo, marca, renavam]
+      );
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  },
+  async getUsersCars({ idusuario }) {
+    try {
+      const result = await pool.query(
+        "SELECT placa,modelo,marca from carro where IdUsuario = $1",
+        [idusuario]
+      );
+      return result.rows;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  },
+  async updateUser({ idusuario, name, cpf, rg }) {
+    await pool.query("UPDATE USUARIO")
   },
 };
 

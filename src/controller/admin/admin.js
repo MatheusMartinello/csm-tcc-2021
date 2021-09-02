@@ -36,6 +36,16 @@ const admin = {
       return error;
     }
   },
+  async getUsersAprove() {
+    try {
+      const result = await pool.query(
+        "select idusuario,nome,email,cpf,rg,datanascimento,login from usuario u where u.aprovado = false"
+      );
+      return result.rows;
+    } catch (error) {
+      console.error(error);
+    }
+  },
 };
 
 module.exports = admin;
