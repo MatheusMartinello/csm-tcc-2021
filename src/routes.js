@@ -152,6 +152,7 @@ routes.post("/admin/auth", async (req, res) => {
       "select idusuarioadmin,login,senha from usuariosadmin where login = $1",
       [login]
     );
+    console.log(req.body);
     if (
       !getUser.rows[0] ||
       !(await bcrypt.compare(password, getUser.rows[0].senha))
