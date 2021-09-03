@@ -182,4 +182,16 @@ routes.get("/admin/getWorkspace", auth.validadeToken, async (req, res) => {
 routes.get("/admin/user/toaprove", auth.validadeToken, async (req, res) => {
   return await res.send({ success: true, users: admin.getUsersAprove });
 });
+routes.get(
+  "/admin/user/getalltoaprove",
+  auth.validadeToken,
+  async (req, res) => {
+    try {
+      const result = await admin.getTotalAprove();
+      return res.send({ success: true, value: result });
+    } catch (error) {
+      return res.status(400).send({ success: false, message: error });
+    }
+  }
+);
 module.exports = routes;

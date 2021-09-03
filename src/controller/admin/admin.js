@@ -46,6 +46,20 @@ const admin = {
       console.error(error);
     }
   },
+  async getTotalAprove() {
+    try {
+      const userResult = await pool.query(
+        "SELECT COUNT(*) from usuario u where u.Aprovado = false"
+      );
+      const workspaceResult = await pool.query(
+        "SELECT COUNT(*) from oficinas o where o.Aprovado = false"
+      );
+      return (userResult.rows[0] ?? 0) + (workspaceResult.rows[0] ?? 0);
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  },
 };
 
 module.exports = admin;
