@@ -5,7 +5,6 @@ const cors = require("cors");
 //Routes
 app.use(express.json());
 app.use(routes);
-app.use();
 app.use(
   cors({
     origin: "*",
