@@ -60,6 +60,39 @@ const admin = {
       throw error;
     }
   },
+  async getDocument({ idusuario }) {
+    try {
+      const result = await pool.query(
+        "select d.urldocumento  from usuario u inner join dadosimagem d on u.idusuario = d.idusuario where u.aprovado = false and d.tipodocumento = 1 and u.idusuario = $1",
+        [idusuario]
+      );
+      console.log(result);
+      return result.rows[0];
+    } catch (error) {
+      throw error;
+    }
+  },
+  async GetAllCarsToApprove() {
+    try {
+      const result = await pool.query(
+        "select c.*,u.login from carro c left join usuario u on u.idusuario = c.idusuario where c.aprovado =false "
+      );
+      return result.rows;
+    } catch (error) {
+      throw error;
+    }
+  },
+  async GetDocumentCar({ idusuario, idcarro }) {
+    try {
+      const result = await pool.query(
+        "SELECT urldocumento,idcarro,idusuario from dadosimagem where idusuario = $1 and idcarro = $2 and idtipo = 3",
+        [idusuario, idcarro]
+      );
+      return result.rows;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 module.exports = admin;

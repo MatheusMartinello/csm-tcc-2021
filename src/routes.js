@@ -43,6 +43,16 @@ routes.post("/user/register", async (req, res) => {
     return res.status(400).send({ message: err, success: "false" });
   }
 });
+routes.post("/user/document", async (req, res) => {
+  try {
+    const result = user.createDoc(req.body);
+    if (result)
+      res.send({ success: true, message: "Documento adicionado com sucesso" });
+    res.status(401).send({ success: false, message: "Algo deu de errado :(" });
+  } catch (error) {
+    return res.status(403).send({ success: false, message: error });
+  }
+});
 routes.post("/user/authenticate", async (req, res) => {
   try {
     const { login, password } = req.body;
@@ -68,12 +78,35 @@ routes.post("/user/authenticate", async (req, res) => {
   }
 });
 routes.post("/user/register/car", auth.validadeToken, async (req, res) => {
-  const result = await user.registerCar(req.body);
-  if (!result)
-    res
-      .status(400)
-      .send({ messeage: "Não foi possivel registrar veiculo", success: false });
-  res.send({ message: "Carro registrado com sucesso!", success: true });
+  try {
+    const result = await user.registerCar(req.body);
+    return res.send({
+      message: "Carro registrado com sucesso!",
+      success: true,
+      idcarro: result,
+    });
+  } catch (error) {
+    return res.status(400).send({
+      messeage: "Não foi possivel registrar veiculo",
+      success: false,
+      error: error,
+    });
+  }
+});
+routes.post("/user/register/cardoc", auth.validadeToken, async (req, res) => {
+  try {
+    const result = await user.createCarDoc(req.body);
+    return res.send({
+      success: true,
+      message: "Documento do carro registrado com sucesso!",
+    });
+  } catch (error) {
+    return res.status(400).send({
+      success: false,
+      message: "Falha ao salvar o documento",
+      error: error,
+    });
+  }
 });
 routes.get("/user/get/car", auth.validadeToken, async (req, res) => {
   const result = await user.getUsersCars(req.body);
@@ -190,6 +223,39 @@ routes.get(
     try {
       const result = await admin.getTotalAprove();
       return res.send({ success: true, value: result });
+    } catch (error) {
+      return res.status(400).send({ success: false, message: error });
+    }
+  }
+);
+routes.get("/admin/user/getdocument", auth.validadeToken, async (req, res) => {
+  try {
+    const result = await admin.getDocument(req.body);
+    console.log(result);
+    return res.send({ success: true, url: result });
+  } catch (error) {
+    return res.status(400).send({ success: false, message: error });
+  }
+});
+routes.get(
+  "/admin/user/getallcarstoapprove",
+  auth.validadeToken,
+  async (req, res) => {
+    try {
+      const result = await admin.GetAllCarsToApprove();
+      return res.send({ success: true, cars: result });
+    } catch (error) {
+      return res.status(400).send({ success: false, error: error });
+    }
+  }
+);
+routes.get(
+  "/admin/user/car/getdocument",
+  auth.validadeToken,
+  async (req, res) => {
+    try {
+      const result = await admin.GetDocumentCar(req.body);
+      return res.send({ success: true, document: result });
     } catch (error) {
       return res.status(400).send({ success: false, message: error });
     }

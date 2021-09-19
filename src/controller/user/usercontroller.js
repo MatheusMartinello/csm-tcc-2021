@@ -58,18 +58,24 @@ const user = {
         "INSERT INTO carro(idusuario,placa,modelo,marca,renavam) values ($1,$2,$3,$4,$5)",
         [idusuario, placa, modelo, marca, renavam]
       );
-      return true;
+
+      const result = await pool.query(
+        "SELECT idcarro FROM carro where idusuario = $1 and modelo = $2",
+        [idusuario, modelo]
+      );
+
+      return result.rows[0].idcarro;
     } catch (error) {
-      console.error(error);
-      return false;
+      throw ("Não foi possível criar veiculo.", error);
     }
   },
   async getUsersCars({ idusuario }) {
     try {
       const result = await pool.query(
-        "SELECT placa,modelo,marca from carro where IdUsuario = $1",
+        "SELECT idcarro,placa,modelo,marca from carro where IdUsuario = $1",
         [idusuario]
       );
+      console.log(result.rows);
       return result.rows;
     } catch (error) {
       console.error(error);
@@ -77,7 +83,43 @@ const user = {
     }
   },
   async updateUser({ idusuario, name, cpf, rg }) {
-    await pool.query("UPDATE USUARIO")
+    await pool.query("UPDATE USUARIO");
+  },
+  async createCar({ idusuario, modelo, marca, cor, placa, renavam }) {
+    const checkUser = await pool.query(
+      "SELECT 1 From usuario where idusuario = $1",
+      [idusuario]
+    );
+    if (checkUser.rows.length < 1) throw "Usuário não encontrado";
+
+    await pool.query(
+      "INSERT INTO Carro(modelo,marca,renavam,placa,idusuario) values ($1,$2,$3,$4,$5)",
+      [modelo, marca, cor, renavam, placa, idusuario]
+    );
+    return true;
+  },
+  async createCarDoc({ idusuario, idcarro, url }) {
+    try {
+      await pool.query(
+        "INSERT INTO dadosimagem(urldocumento,tipodocumento,idusuario,idcarro) values($1,$2,$3,$4)",
+        [url, 3, idusuario, idcarro]
+      );
+      return;
+    } catch (error) {
+      throw error;
+    }
+  },
+  async createDoc({ idusuario, url }) {
+    try {
+      console.log("YAY!" + idusuario + " " + url);
+      await pool.query(
+        "INSERT INTO dadosimagem(urldocumento,tipodocumento,idusuario) values ($1,$2,$3)",
+        [url, 1, idusuario]
+      );
+      return true;
+    } catch (error) {
+      throw error;
+    }
   },
 };
 
