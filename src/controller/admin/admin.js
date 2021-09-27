@@ -93,6 +93,14 @@ const admin = {
       throw error;
     }
   },
+  async GetDocumentOficina({idoficina}){
+    try {
+      const result = await pool.query("select o.nome , o.razaosocial ,o.cnpj ,o.login ,incricaoestadual from oficina o where idoficina = $1",[idoficina])
+    } catch (error) {
+      throw error;
+    }
+  }
+
 };
 
 module.exports = admin;

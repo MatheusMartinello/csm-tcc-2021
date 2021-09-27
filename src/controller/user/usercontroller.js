@@ -111,7 +111,7 @@ const user = {
   },
   async createDoc({ idusuario, url }) {
     try {
-      console.log("YAY!" + idusuario + " " + url);
+     
       await pool.query(
         "INSERT INTO dadosimagem(urldocumento,tipodocumento,idusuario) values ($1,$2,$3)",
         [url, 1, idusuario]

@@ -207,10 +207,12 @@ routes.get("/admin/getUser", auth.validadeToken, async (req, res) => {
   );
   return res.send({ users: result.rows });
 });
-routes.get("/admin/getWorkspace", auth.validadeToken, async (req, res) => {
+routes.get("/admin/getworkspace", auth.validadeToken, async (req, res) => {
+  console.log("Entrou aqui");
   const result = await pool.query(
     "SELECT idoficina,login,nome,cnpj,razaosocial,datacriacao,aprovado from oficina where aprovado = false"
   );
+  console.log("Entrou aqui entao nao deu erro");
   return res.send({ users: result.rows });
 });
 routes.get("/admin/user/toaprove", auth.validadeToken, async (req, res) => {

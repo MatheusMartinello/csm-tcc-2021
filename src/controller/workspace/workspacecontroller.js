@@ -18,13 +18,23 @@ const workspace = {
     complemento = null,
     latitude = null,
     longitute = null,
+    inscricaoEstadual,
   }) {
     try {
       password = await bcrypt.hash(password, 10);
-      
+
       await pool.query(
-        "INSERT INTO oficina(nome,razaosocial,cnpj,login,email,senha,datacriacao) values ($1,$2,$3,$4,$5,$6,$7)",
-        [name, razaosocial, cnpj, login, email, password, bornDate]
+        "INSERT INTO oficina(nome,razaosocial,cnpj,login,email,senha,datacriacao,inscricaosocial) values ($1,$2,$3,$4,$5,$6,$7,$8)",
+        [
+          name,
+          razaosocial,
+          cnpj,
+          login,
+          email,
+          password,
+          bornDate,
+          inscricaoEstadual,
+        ]
       );
       const idworkspace = await pool.query(
         "SELECT idoficina FROM oficina where Login = $1",
