@@ -131,7 +131,7 @@ const admin = {
       if (idusuario != null && idcarro != null) {
         await pool.query(
           "update carro set aprovado = true where idusuario = $1 and idcarro = $2",
-          [idusuario, idcarro]c
+          [idusuario, idcarro]
         );
         return;
       }
