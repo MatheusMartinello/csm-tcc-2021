@@ -215,7 +215,7 @@ routes.get("/admin/getworkspace", auth.validadeToken, async (req, res) => {
   console.log("Entrou aqui entao nao deu erro");
   return res.send({ users: result.rows });
 });
-routes.get("/admin/user/toaprove", auth.validadeToken, async (req, res) => {
+routes.get("/admin/user/toapprove", auth.validadeToken, async (req, res) => {
   return await res.send({ success: true, users: admin.getUsersAprove });
 });
 routes.get(
@@ -263,4 +263,25 @@ routes.get(
     }
   }
 );
+routes.get(
+  "/admin/workspace/getdocument",
+  auth.validadeToken,
+  async (req, res) => {
+    try {
+      const result = await admin.getDocumentWorkspace(req.body);
+      return res.send({ success: true, url: result });
+    } catch (error) {
+      return res.status(400).send({ success: false, message: error });
+    }
+  }
+);
+routes.post("/admin/approve", auth.validadeToken, async (req, res) => {
+  try {
+    
+    const result = await admin.Approve(req.body);
+    return res.send({ success: true, message: "Aprovado com sucesso!" });
+  } catch (error) {
+    return res.status(400).send({ success: false, message: error });
+  }
+});
 module.exports = routes;

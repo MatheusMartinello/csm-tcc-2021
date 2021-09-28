@@ -52,9 +52,10 @@ const admin = {
         "SELECT COUNT(*) from usuario u where u.Aprovado = false"
       );
       const workspaceResult = await pool.query(
-        "SELECT COUNT(*) from oficinas o where o.Aprovado = false"
+        "SELECT COUNT(*) from oficina o where o.Aprovado = false"
       );
-      return (userResult.rows[0] ?? 0) + (workspaceResult.rows[0] ?? 0);
+
+      return +workspaceResult.rows[0].count + +userResult.rows[0].count;
     } catch (error) {
       console.log(error);
       throw error;
@@ -65,6 +66,18 @@ const admin = {
       const result = await pool.query(
         "select d.urldocumento  from usuario u inner join dadosimagem d on u.idusuario = d.idusuario where u.aprovado = false and d.tipodocumento = 1 and u.idusuario = $1",
         [idusuario]
+      );
+      console.log(result);
+      return result.rows[0];
+    } catch (error) {
+      throw error;
+    }
+  },
+  async getDocumentWorkspace({ idoficina }) {
+    try {
+      const result = await pool.query(
+        "select d.urldocumento  from oficina o inner join dadosimagem d on o.idoficina = d.idoficina where o.aprovado = false and d.tipodocumento = 4 and o.idoficina = $1",
+        [idoficina]
       );
       console.log(result);
       return result.rows[0];
@@ -93,14 +106,47 @@ const admin = {
       throw error;
     }
   },
-  async GetDocumentOficina({idoficina}){
+  async GetDocumentOficina({ idoficina }) {
     try {
-      const result = await pool.query("select o.nome , o.razaosocial ,o.cnpj ,o.login ,incricaoestadual from oficina o where idoficina = $1",[idoficina])
+      const result = await pool.query(
+        "select o.nome , o.razaosocial ,o.cnpj ,o.login ,incricaoestadual from oficina o where idoficina = $1",
+        [idoficina]
+      );
     } catch (error) {
       throw error;
     }
-  }
-
+  },
+  async Approve({ idusuario = null, idoficina = null, idcarro = null }) {
+    try {
+      console.log(idusuario);
+      console.log(idcarro);
+      console.log(idoficina);
+      if (idusuario != undefined && (idcarro == null || idcarro == undefined)) {
+        await pool.query(
+          "update usuario set Aprovado = true where IdUsuario = $1",
+          [idusuario]
+        );
+        return;
+      }
+      if (idusuario != null && idcarro != null) {
+        await pool.query(
+          "update carro set aprovado = true where idusuario = $1 and idcarro = $2",
+          [idusuario, idcarro]c
+        );
+        return;
+      }
+      if (idoficina != null) {
+        await pool.query(
+          "update oficina set aprovado = true where idoficina = $1 ",
+          [idoficina]
+        );
+        return;
+      }
+      throw "Chegou aqui é pq deu ruim";
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 module.exports = admin;
