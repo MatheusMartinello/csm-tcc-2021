@@ -48,14 +48,55 @@ const admin = {
   },
   async getTotalAprove() {
     try {
-      const userResult = await pool.query(
-        "SELECT COUNT(*) from usuario u where u.Aprovado = false"
-      );
-      const workspaceResult = await pool.query(
-        "SELECT COUNT(*) from oficina o where o.Aprovado = false"
+      const userResultNotApprove = await pool.query(
+        "SELECT COUNT(*) from usuario u where statusdocument= 2"
       );
 
-      return +workspaceResult.rows[0].count + +userResult.rows[0].count;
+      const userResultApprove = await pool.query(
+        "SELECT COUNT(*) from usuario u where statusdocument= 1"
+      );
+
+      const workspaceResultNotApprove = await pool.query(
+        "SELECT COUNT(*) from oficina o where statusdocument= 2"
+      );
+  
+      const workspaceResultApprove = await pool.query(
+        "SELECT COUNT(*) from oficina o where statusdocument = 1"
+      );
+ 
+      const carResultNotApprove = await pool.query(
+        "select count(*) from carro where statusdocument= 2"
+      );
+ 
+      const carResultApprove = await pool.query(
+        "select count(*) from carro where statusdocument = 1"
+      );
+
+      const carResultPendent = await pool.query(
+        "select count(*) from carro where statusdocument = 3"
+      );
+    
+      const userPendent = await pool.query(
+        "select count(*) from usuario where statusdocument = 3"
+      );
+      
+      const workspacePendent = await pool.query(
+        "select count(*) from oficina where statusdocument = 3"
+      );
+
+      const resultObj = {
+        usuariosNaoAprovados: userResultNotApprove.rows[0].count,
+        usuariosAprovados: userResultApprove.rows[0].count,
+        usuarioPendente: userPendent.rows[0].count,
+        oficinasNaoAprovados: workspaceResultNotApprove.rows[0].count,
+        oficinasAprovados: workspaceResultApprove.rows[0].count,
+        oficinasPendente: workspacePendent.rows[0].count,
+        carrosNaoAprovados: carResultNotApprove.rows[0].count,
+        carrosAprovados: carResultApprove.rows[0].count,
+        carrosPendentes: carResultPendent.rows[0].count,
+      };
+
+      return resultObj;
     } catch (error) {
       console.log(error);
       throw error;

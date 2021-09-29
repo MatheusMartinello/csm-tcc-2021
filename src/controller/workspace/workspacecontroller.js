@@ -11,10 +11,9 @@ const workspace = {
     cnpj,
     login,
     email,
-    bornDate,
     address,
     num,
-    cep,
+    cep = null,
     complemento = null,
     latitude = null,
     longitute = null,
@@ -32,7 +31,7 @@ const workspace = {
           login,
           email,
           password,
-          bornDate,
+          Date.now(),
           inscricaoEstadual,
         ]
       );
