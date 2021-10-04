@@ -6,6 +6,8 @@ const bcrypt = require("bcrypt");
 const workspace = require("./controller/workspace/workspacecontroller");
 const admin = require("../src/controller/admin/admin");
 const auth = require("./services/authentication");
+const multer = require("multer");
+const multerConfig = require("./config/multer");
 routes.get("/", async (req, res) => {
   try {
     res.json({ message: "Conexão está OK!" });
@@ -43,16 +45,22 @@ routes.post("/user/register", async (req, res) => {
     return res.status(400).send({ message: err, success: "false" });
   }
 });
-routes.post("/user/document", async (req, res) => {
-  try {
-    const result = user.createDoc(req.body);
-    if (result)
-      res.send({ success: true, message: "Documento adicionado com sucesso" });
-    res.status(401).send({ success: false, message: "Algo deu de errado :(" });
-  } catch (error) {
-    return res.status(403).send({ success: false, message: error });
+routes.post(
+  "/user/document",
+  multer(multerConfig).single("file"),
+  async (req, res) => {
+    const { originalname: name, size, key, location: url = "" } = req.file;
+    console.log(key);
+    const post = {
+      name,
+      size,
+      key,
+      url,
+    };
+
+    return res.json(post);
   }
-});
+);
 routes.post("/user/authenticate", async (req, res) => {
   try {
     const { login, password } = req.body;
@@ -277,7 +285,6 @@ routes.get(
 );
 routes.post("/admin/approve", auth.validadeToken, async (req, res) => {
   try {
-    
     const result = await admin.Approve(req.body);
     return res.send({ success: true, message: "Aprovado com sucesso!" });
   } catch (error) {

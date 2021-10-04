@@ -59,15 +59,15 @@ const admin = {
       const workspaceResultNotApprove = await pool.query(
         "SELECT COUNT(*) from oficina o where statusdocument= 2"
       );
-  
+
       const workspaceResultApprove = await pool.query(
         "SELECT COUNT(*) from oficina o where statusdocument = 1"
       );
- 
+
       const carResultNotApprove = await pool.query(
         "select count(*) from carro where statusdocument= 2"
       );
- 
+
       const carResultApprove = await pool.query(
         "select count(*) from carro where statusdocument = 1"
       );
@@ -75,11 +75,11 @@ const admin = {
       const carResultPendent = await pool.query(
         "select count(*) from carro where statusdocument = 3"
       );
-    
+
       const userPendent = await pool.query(
         "select count(*) from usuario where statusdocument = 3"
       );
-      
+
       const workspacePendent = await pool.query(
         "select count(*) from oficina where statusdocument = 3"
       );
@@ -105,7 +105,7 @@ const admin = {
   async getDocument({ idusuario }) {
     try {
       const result = await pool.query(
-        "select d.urldocumento  from usuario u inner join dadosimagem d on u.idusuario = d.idusuario where u.aprovado = false and d.tipodocumento = 1 and u.idusuario = $1",
+        "select d.urldocumento  from usuario u inner join dadosimagem d on u.idusuario = d.idusuario where u.statusdocument = 3  and d.tipodocumento = 1 and u.idusuario = $1",
         [idusuario]
       );
       console.log(result);
@@ -117,7 +117,7 @@ const admin = {
   async getDocumentWorkspace({ idoficina }) {
     try {
       const result = await pool.query(
-        "select d.urldocumento  from oficina o inner join dadosimagem d on o.idoficina = d.idoficina where o.aprovado = false and d.tipodocumento = 4 and o.idoficina = $1",
+        "select d.urldocumento  from oficina o inner join dadosimagem d on o.idoficina = d.idoficina where o.statusdocument = 3  and d.tipodocumento = 4 and o.idoficina = $1",
         [idoficina]
       );
       console.log(result);
@@ -129,7 +129,7 @@ const admin = {
   async GetAllCarsToApprove() {
     try {
       const result = await pool.query(
-        "select c.*,u.login from carro c left join usuario u on u.idusuario = c.idusuario where c.aprovado =false "
+        "select c.*,u.login from carro c left join usuario u on u.idusuario = c.idusuario where statusdocument = 3  "
       );
       return result.rows;
     } catch (error) {
@@ -164,21 +164,21 @@ const admin = {
       console.log(idoficina);
       if (idusuario != undefined && (idcarro == null || idcarro == undefined)) {
         await pool.query(
-          "update usuario set Aprovado = true where IdUsuario = $1",
+          "update usuario set statusdocument = 1 where IdUsuario = $1",
           [idusuario]
         );
         return;
       }
       if (idusuario != null && idcarro != null) {
         await pool.query(
-          "update carro set aprovado = true where idusuario = $1 and idcarro = $2",
+          "update carro set statusdocument = 1  where idusuario = $1 and idcarro = $2",
           [idusuario, idcarro]
         );
         return;
       }
       if (idoficina != null) {
         await pool.query(
-          "update oficina set aprovado = true where idoficina = $1 ",
+          "update oficina set statusdocument = 1  where idoficina = $1 ",
           [idoficina]
         );
         return;
