@@ -118,17 +118,8 @@ routes.get("/user/get/car", auth.validadeToken, async (req, res) => {
   return res.send({ cars: result, success: true });
 });
 routes.post("/workspace/register", async (req, res) => {
-  const { login, password, name, cnpj, razaosocial, bornDate, email } =
-    req.body;
-  if (
-    !login ||
-    !password ||
-    !name ||
-    !cnpj ||
-    !razaosocial ||
-    !bornDate ||
-    !email
-  )
+  const { login, password, name, cnpj, inscricaoEstadual, email } = req.body;
+  if (!login || !password || !name || !cnpj || !inscricaoEstadual || !email)
     return res
       .status(400)
       .send({ error: "É necessário o envio de todos os itens de cadastro!" });
