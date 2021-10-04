@@ -47,18 +47,13 @@ routes.post("/user/register", async (req, res) => {
 });
 routes.post(
   "/user/document",
+  auth.validadeToken,
   multer(multerConfig).single("file"),
   async (req, res) => {
     const { originalname: name, size, key, location: url = "" } = req.file;
-    console.log(key);
-    const post = {
-      name,
-      size,
-      key,
-      url,
-    };
-
-    return res.json(post);
+    const { idusuario } = req.body;
+    user.createDoc(idusuario, url);
+    return res.json({ success: true, message: "Documento salvo com sucesso!" });
   }
 );
 routes.post("/user/authenticate", async (req, res) => {

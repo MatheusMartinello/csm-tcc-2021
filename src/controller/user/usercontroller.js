@@ -109,9 +109,8 @@ const user = {
       throw error;
     }
   },
-  async createDoc({ idusuario, url }) {
+  async createDoc(idusuario, url) {
     try {
-     
       await pool.query(
         "INSERT INTO dadosimagem(urldocumento,tipodocumento,idusuario) values ($1,$2,$3)",
         [url, 1, idusuario]
