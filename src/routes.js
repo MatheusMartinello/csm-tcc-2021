@@ -60,7 +60,7 @@ routes.post("/user/authenticate", async (req, res) => {
   try {
     const { login, password } = req.body;
     const getUser = await pool.query(
-      "select login,senha,idusuario from usuario where login = $1",
+      "select login,senha,idusuario,nome from usuario where login = $1",
       [login]
     );
 
@@ -75,6 +75,7 @@ routes.post("/user/authenticate", async (req, res) => {
       message: "Login logado com sucesso",
       token: token,
       idusuario: getUser.rows[0].idusuario,
+      nome: getUser.rows[0].nome
     });
   } catch (error) {
     return res.status(400).send({ error: error });
@@ -112,7 +113,7 @@ routes.post("/user/register/cardoc", auth.validadeToken, async (req, res) => {
   }
 });
 routes.get("/user/get/car", auth.validadeToken, async (req, res) => {
-  const result = await user.getUsersCars(req.body);
+  const result = await user.getUsersCars(req.query);
   if (result == null)
     return res.status(417).send({ message: "Error no banco", success: false });
   return res.send({ cars: result, success: true });
