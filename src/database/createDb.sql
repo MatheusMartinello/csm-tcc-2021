@@ -164,6 +164,31 @@ CREATE INDEX fkIdx_44 ON DadosImagem
  IdUsuario
 );
 
+-- ************************************** OrdemDeServico
+
+CREATE TABLE OrdemDeServico
+(
+ IdOrdemDeServico serial NOT NULL,
+ IdServico        integer NOT NULL,
+ IdOficina        bigint NOT NULL,
+ IdCarro          integer NOT NULL,
+ IdUsuario        integer NOT NULL,
+ CONSTRAINT PK_ordemdeservico PRIMARY KEY ( IdOrdemDeServico, IdServico, IdOficina, IdCarro, IdUsuario ),
+ CONSTRAINT FK_67 FOREIGN KEY ( IdServico, IdOficina ) REFERENCES Servicos ( IdServico, IdOficina ),
+ CONSTRAINT FK_71 FOREIGN KEY ( IdCarro, IdUsuario ) REFERENCES Carro ( IdCarro, IdUsuario )
+);
+
+CREATE INDEX fkIdx_68 ON OrdemDeServico
+(
+ IdServico,
+ IdOficina
+);
+
+CREATE INDEX fkIdx_72 ON OrdemDeServico
+(
+ IdCarro,
+ IdUsuario
+);
 
 -- ************************************** DescricaoServico
 
@@ -194,33 +219,6 @@ CREATE INDEX fkIdx_78 ON DescricaoServico
 CREATE INDEX fkIdx_86 ON DescricaoServico
 (
  IdPeca
-);
-
-
--- ************************************** OrdemDeServico
-
-CREATE TABLE OrdemDeServico
-(
- IdOrdemDeServico serial NOT NULL,
- IdServico        integer NOT NULL,
- IdOficina        bigint NOT NULL,
- IdCarro          integer NOT NULL,
- IdUsuario        integer NOT NULL,
- CONSTRAINT PK_ordemdeservico PRIMARY KEY ( IdOrdemDeServico, IdServico, IdOficina, IdCarro, IdUsuario ),
- CONSTRAINT FK_67 FOREIGN KEY ( IdServico, IdOficina ) REFERENCES Servicos ( IdServico, IdOficina ),
- CONSTRAINT FK_71 FOREIGN KEY ( IdCarro, IdUsuario ) REFERENCES Carro ( IdCarro, IdUsuario )
-);
-
-CREATE INDEX fkIdx_68 ON OrdemDeServico
-(
- IdServico,
- IdOficina
-);
-
-CREATE INDEX fkIdx_72 ON OrdemDeServico
-(
- IdCarro,
- IdUsuario
 );
 
 -- ************************************** Telefone
