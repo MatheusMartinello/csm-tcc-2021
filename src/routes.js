@@ -168,6 +168,27 @@ routes.post("/workspace/authenticate", async (req, res) => {
     return res.status(400).send({ error: error });
   }
 });
+routes.post(
+  "/workspace/document",
+  auth.validadeToken,
+  multer(multerConfig).single("file"),
+  async (req, res) => {
+    const { originalname: name, size, key, location: url = "" } = req.file;
+    const { idoficina } = req.body;
+    const _return = await user.createDoc(idoficina, url);
+    if (_return === true)
+      return res.json({
+        success: true,
+        message: "Documento salvo com sucesso!",
+      });
+    return res
+      .status(500)
+      .send({ success: false, message: "Algo deu de errado!" });
+  }
+);
+routes.post("/workspace/get", auth.getToken, async (req,res) => {
+  
+})
 routes.post("/admin/register", async (req, res) => {
   await admin.Register(req.body);
   return res.send({ mensage: "Registado com sucesso" });

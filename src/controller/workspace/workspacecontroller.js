@@ -2,6 +2,7 @@ const pool = require("../../database/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const authConfig = require("../../config/auth.json");
+const { get } = require("../../routes");
 
 const workspace = {
   async Register({
@@ -23,7 +24,7 @@ const workspace = {
       password = await bcrypt.hash(password, 10);
 
       await pool.query(
-        "INSERT INTO oficina(nome,razaosocial,cnpj,login,email,senha,datacriacao,inscricaosocial) values ($1,$2,$3,$4,$5,$6,$7,$8)",
+        "INSERT INTO oficina(nome,razaosocial,cnpj,login,email,senha,datacriacao,incricaoestadual) values ($1,$2,$3,$4,$5,$6,$7,$8)",
         [
           name,
           razaosocial,
@@ -31,7 +32,7 @@ const workspace = {
           login,
           email,
           password,
-          Date.now(),
+          new Date(),
           inscricaoEstadual,
         ]
       );
@@ -39,16 +40,17 @@ const workspace = {
         "SELECT idoficina FROM oficina where Login = $1",
         [login]
       );
+      console.log(idworkspace.rows);
       if (idworkspace.rows[0].idoficina === null)
         throw "Não foi possivel criar a oficina";
-      await pool.query(
-        "INSERT INTO endereco(rua,numero,complemento,cep,latitude,longitude) values($1,$2,$3,$4,$5,$6)",
-        [address, num, complemento, cep, latitude, longitute]
-      );
+      // await pool.query(
+      //   "INSERT INTO endereco(rua,numero,complemento,cep,latitude,longitude) values($1,$2,$3,$4,$5,$6)",
+      //   [address, num, complemento, cep, latitude, longitute]
+      // );
       return true;
     } catch (error) {
       console.error(error);
-      return error;
+      throw "Não foi possivel criar a oficina" + error;
     }
   },
   async authUser({ login }) {
@@ -70,6 +72,24 @@ const workspace = {
       return error;
     }
   },
+  async createDoc(idoficina, url) {
+    try {
+      await pool.query(
+        "INSERT INTO dadosimagem(urldocumento,tipodocumento,idusuario) values ($1,$2,$3)",
+        [url, 1, idoficina]
+      );
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  },
+  async get(idoficina){
+    try {
+      const result = pool.query("SELECT ")
+    } catch (error) {
+      throw error;
+    }
+  }
 };
 
 module.exports = workspace;
