@@ -8,6 +8,7 @@ const admin = require("../src/controller/admin/admin");
 const auth = require("./services/authentication");
 const multer = require("multer");
 const multerConfig = require("./config/multer");
+const { transporter } = require("./controller/email/email");
 routes.get("/", async (req, res) => {
   try {
     res.json({ message: "Conexão está OK!" });
@@ -75,7 +76,7 @@ routes.post("/user/authenticate", async (req, res) => {
       message: "Login logado com sucesso",
       token: token,
       idusuario: getUser.rows[0].idusuario,
-      nome: getUser.rows[0].nome
+      nome: getUser.rows[0].nome,
     });
   } catch (error) {
     return res.status(400).send({ error: error });
@@ -117,6 +118,19 @@ routes.get("/user/get/car", auth.validadeToken, async (req, res) => {
   if (result == null)
     return res.status(417).send({ message: "Error no banco", success: false });
   return res.send({ cars: result, success: true });
+});
+routes.put("/user/put/update", auth.validadeToken, async (req, res) => {
+  const result = user.updateUser(req.body);
+  if (result)
+    return res.send({
+      success: true,
+      message: "Usuário atualizado com sucesso!",
+    });
+  else
+    return res.status(402).send({
+      success: false,
+      message: "Algo deu errado",
+    });
 });
 routes.post("/workspace/register", async (req, res) => {
   const { login, password, name, cnpj, inscricaoEstadual, email } = req.body;
@@ -187,9 +201,7 @@ routes.post(
       .send({ success: false, message: "Algo deu de errado!" });
   }
 );
-routes.post("/workspace/get", auth.getToken, async (req,res) => {
-  
-})
+routes.post("/workspace/get", auth.getToken, async (req, res) => {});
 routes.post("/admin/register", async (req, res) => {
   await admin.Register(req.body);
   return res.send({ mensage: "Registado com sucesso" });
@@ -219,7 +231,7 @@ routes.post("/admin/auth", async (req, res) => {
 });
 routes.get("/admin/getUser", auth.validadeToken, async (req, res) => {
   const result = await pool.query(
-    "SELECT idusuario,login,cpf,rg,datanascimento,email,aprovado from Usuario where aprovado = false"
+    "SELECT idusuario,login,cpf,rg,datanascimento,email,statusdocument from Usuario where statusdocument = 3"
   );
   return res.send({ users: result.rows });
 });
@@ -299,4 +311,6 @@ routes.post("/admin/approve", auth.validadeToken, async (req, res) => {
     return res.status(400).send({ success: false, message: error });
   }
 });
+routes.post("/admin/result", auth.validadeToken, async (req, res) => {});
+
 module.exports = routes;

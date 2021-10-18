@@ -18,7 +18,7 @@ const user = {
     try {
       password = await bcrypt.hash(password, 10);
       await pool.query(
-        "insert into usuario (nome,email,cpf,rg,datanascimento,login,senha) values($1,$2,$3,$4,$5,$6,$7)",
+        "insert into usuario (nome,email,cpf,rg,datanascimento,login,senha,statusdocument) values($1,$2,$3,$4,$5,$6,$7,3)",
         [name, email, cpf, rg, bornDate, login, password]
       );
 
@@ -82,7 +82,7 @@ const user = {
       return null;
     }
   },
-  async updateUser({ idusuario, name, cpf, rg }) {
+  async updateUser({ idusuario = null, name = null, cpf = null, rg = null }) {
     await pool.query("UPDATE USUARIO");
   },
   async createCar({ idusuario, modelo, marca, cor, placa, renavam }) {

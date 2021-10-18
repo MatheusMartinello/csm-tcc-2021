@@ -2,6 +2,7 @@ const pool = require("../../database/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const authConfig = require("../../config/auth.json");
+const { transporter } = require("../email/email");
 
 const admin = {
   async Register({ login, password }) {
@@ -129,7 +130,7 @@ const admin = {
   async GetAllCarsToApprove() {
     try {
       const result = await pool.query(
-        "select c.*,u.login from carro c left join usuario u on u.idusuario = c.idusuario where statusdocument = 3  "
+        "select c.*, u.login from carro c left join usuario u on u.idusuario = c.idusuario where u.statusdocument = 3 and c.statusdocument = 3 "
       );
       return result.rows;
     } catch (error) {
@@ -139,9 +140,10 @@ const admin = {
   async GetDocumentCar({ idusuario, idcarro }) {
     try {
       const result = await pool.query(
-        "SELECT urldocumento,idcarro,idusuario from dadosimagem where idusuario = $1 and idcarro = $2 and idtipo = 3",
+        "SELECT d.urldocumento,d.idcarro,d.idusuario from dadosimagem d inner join carro c on c.idcarro = d.idcarro where d.idusuario = $1 and d.idcarro = $2 and c.statusdocument = 3",
         [idusuario, idcarro]
       );
+      console.log(result.rows[0]);
       return result.rows;
     } catch (error) {
       throw error;
@@ -157,7 +159,12 @@ const admin = {
       throw error;
     }
   },
-  async Approve({ idusuario = null, idoficina = null, idcarro = null }) {
+  async Approve({
+    idusuario = null,
+    idoficina = null,
+    idcarro = null,
+    mensagemEmail,
+  }) {
     try {
       console.log(idusuario);
       console.log(idcarro);
@@ -167,6 +174,23 @@ const admin = {
           "update usuario set statusdocument = 1 where IdUsuario = $1",
           [idusuario]
         );
+        const user = pool.query(
+          "SELECT email from Usuario where IdUsuario = $1",
+          [idusuario]
+        );
+        var mailOptions = {
+          from: "csmmaintencecompany@gmail.com",
+          to: user.rows[0].email,
+          subject: "Aprovado!",
+          text: mensagemEmail,
+        };
+        transporter.send(mailOptions, function (error, info) {
+          if (error) {
+            console.log(error);
+          } else {
+            console.log("Email sent: " + info.response);
+          }
+        });
         return;
       }
       if (idusuario != null && idcarro != null) {
@@ -174,6 +198,23 @@ const admin = {
           "update carro set statusdocument = 1  where idusuario = $1 and idcarro = $2",
           [idusuario, idcarro]
         );
+        const user = pool.query(
+          "SELECT email from usuario where idusuario = $1",
+          [idusuario]
+        );
+        var mailOptions = {
+          from: "csmmaintencecompany@gmail.com",
+          to: user.rows[0].email,
+          subject: "Aprovado!",
+          text: mensagemEmail,
+        };
+        transporter.sendMail(mailOptions, function (error, info) {
+          if (error) {
+            console.log(error);
+          } else {
+            console.log("Email sent: " + info.response);
+          }
+        });
         return;
       }
       if (idoficina != null) {
@@ -181,6 +222,23 @@ const admin = {
           "update oficina set statusdocument = 1  where idoficina = $1 ",
           [idoficina]
         );
+        const user = pool.query(
+          "SELECT email from oficina where idoficina = $1",
+          [idoficina]
+        );
+        var mailOptions = {
+          from: "csmmaintencecompany@gmail.com",
+          to: user.rows[0].email,
+          subject: "Aprovado!",
+          text: mensagemEmail,
+        };
+        transporter.send(mailOptions, function (error, info) {
+          if (error) {
+            console.log(error);
+          } else {
+            console.log("Email sent: " + info.response);
+          }
+        });
         return;
       }
       throw "Chegou aqui é pq deu ruim";
