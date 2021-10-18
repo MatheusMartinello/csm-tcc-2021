@@ -24,7 +24,7 @@ const workspace = {
       password = await bcrypt.hash(password, 10);
 
       await pool.query(
-        "INSERT INTO oficina(nome,razaosocial,cnpj,login,email,senha,datacriacao,incricaoestadual) values ($1,$2,$3,$4,$5,$6,$7,$8)",
+        "INSERT INTO oficina(nome,razaosocial,cnpj,login,email,senha,datacriacao,inscricaoestadual) values ($1,$2,$3,$4,$5,$6,$7,$8)",
         [
           name,
           razaosocial,
@@ -83,13 +83,13 @@ const workspace = {
       throw error;
     }
   },
-  async get(idoficina){
+  async get(idoficina) {
     try {
-      const result = pool.query("SELECT ")
+      const result = pool.query("SELECT ");
     } catch (error) {
       throw error;
     }
-  }
+  },
 };
 
 module.exports = workspace;

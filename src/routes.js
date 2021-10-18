@@ -98,21 +98,27 @@ routes.post("/user/register/car", auth.validadeToken, async (req, res) => {
     });
   }
 });
-routes.post("/user/register/cardoc", auth.validadeToken, async (req, res) => {
-  try {
-    const result = await user.createCarDoc(req.body);
-    return res.send({
-      success: true,
-      message: "Documento do carro registrado com sucesso!",
-    });
-  } catch (error) {
-    return res.status(400).send({
-      success: false,
-      message: "Falha ao salvar o documento",
-      error: error,
-    });
+routes.post(
+  "/user/register/cardoc",
+  auth.validadeToken,
+  multer(multerConfig).single("file"),
+  async (req, res) => {
+    try {
+      const { originalname: name, size, key, location: url = "" } = req.file;
+      await user.createCarDoc(req.body, url);
+      return res.send({
+        success: true,
+        message: "Documento do carro registrado com sucesso!",
+      });
+    } catch (error) {
+      return res.status(400).send({
+        success: false,
+        message: "Falha ao salvar o documento",
+        error: error,
+      });
+    }
   }
-});
+);
 routes.get("/user/get/car", auth.validadeToken, async (req, res) => {
   const result = await user.getUsersCars(req.query);
   if (result == null)
