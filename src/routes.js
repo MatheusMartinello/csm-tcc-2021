@@ -126,14 +126,14 @@ routes.get("/user/get/car", auth.validadeToken, async (req, res) => {
   return res.send({ cars: result, success: true });
 });
 routes.put("/user/put/update", auth.validadeToken, async (req, res) => {
-  const result = user.updateUser(req.body);
+  const result = await user.updateUser(req.body);
   if (result)
     return res.send({
       success: true,
       message: "Usuário atualizado com sucesso!",
     });
   else
-    return res.status(402).send({
+    return res.status(403).send({
       success: false,
       message: "Algo deu errado",
     });
@@ -207,7 +207,11 @@ routes.post(
       .send({ success: false, message: "Algo deu de errado!" });
   }
 );
-routes.post("/workspace/get", auth.getToken, async (req, res) => {});
+routes.get("/workspace/get", auth.getToken, async (req, res) => {
+  console.log("Entrei");
+  const result = await workspace.get(req.body);
+  return res.send({ success: true, workspace: result });
+});
 routes.post("/admin/register", async (req, res) => {
   await admin.Register(req.body);
   return res.send({ mensage: "Registado com sucesso" });

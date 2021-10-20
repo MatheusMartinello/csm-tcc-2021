@@ -2,7 +2,6 @@ const pool = require("../../database/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const authConfig = require("../../config/auth.json");
-const { get } = require("../../routes");
 
 const workspace = {
   async Register({
@@ -83,9 +82,14 @@ const workspace = {
       throw error;
     }
   },
-  async get(idoficina) {
+  async get({ idoficina }) {
     try {
-      const result = pool.query("SELECT ");
+      console.log(idoficina);
+      const result = pool.query(
+        "SELECT nome,email,inscricaoestadual from oficina where idoficina = $1",
+        [idoficina]
+      );
+      return result.rows[0];
     } catch (error) {
       throw error;
     }

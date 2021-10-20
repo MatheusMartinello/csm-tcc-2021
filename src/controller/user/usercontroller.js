@@ -82,8 +82,36 @@ const user = {
       return null;
     }
   },
-  async updateUser({ idusuario = null, name = null, cpf = null, rg = null }) {
-    await pool.query("UPDATE USUARIO");
+  async updateUser({
+    idusuario,
+    name = null,
+    cpf = null,
+    rg = null,
+    password = null,
+    phone = null,
+  }) {
+    try {
+      const _user = await pool.query(
+        "select * from usuario where idusuario = $1",
+        [idusuario]
+      );
+      console.log("Entrouuu");
+      if (name == null) name = _user.rows[0].nome;
+      if (cpf == null) cpf = _user.rows[0].cpf;
+      if (rg == null) rpg = _user.rows[0].rpg;
+
+      if (password != null) password = await bcrypt.hash(password, 10);
+      if (password == null) password = _user.rows[0].password;
+
+      await pool.query(
+        "UPDATE USUARIO set nome = $1, cpf = $2, rg = $3, senha= $4",
+        [name, cpf, rg, password]
+      );
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
   },
   async createCar({ idusuario, modelo, marca, cor, placa, renavam }) {
     const checkUser = await pool.query(
