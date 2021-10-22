@@ -15,4 +15,5 @@ app.use(routes);
 
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server open in port 3000!");
+  console.log(process.env);
 });

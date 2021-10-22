@@ -23,10 +23,9 @@ const storageTypes = {
   }),
   s3: multerS3({
     s3: new aws.S3({
-      accessKeyId: "AKIAUG23SV7IAAAR4UYI",
-      secretAccessKey: "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",
-      region: "us-east-2",
-      
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET__ACCESS_KEY,
+      region: process.env.AWS_DEFAULT_REGION,
     }),
     bucket: "csm-tcc",
     contentType: multerS3.AUTO_CONTENT_TYPE,

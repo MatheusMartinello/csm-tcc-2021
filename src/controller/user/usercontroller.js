@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const authConfig = require("../../config/auth.json");
 const returnLatLon = require("../../services/geolocation");
+const { CostExplorer } = require("aws-sdk");
 const user = {
   async createUser({
     login,
@@ -39,6 +40,7 @@ const user = {
         "select idusuario from usuario where login = $1",
         [login]
       );
+      console.log(getuser.rows[0]);
       if (getuser.rows[0] == null) return "error";
       const token = jwt.sign(
         { id: getuser.rows[0].idusuario },
@@ -49,6 +51,7 @@ const user = {
       );
       return token;
     } catch (error) {
+      console.error(error);
       return error;
     }
   },
