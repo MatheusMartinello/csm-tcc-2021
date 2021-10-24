@@ -9,6 +9,7 @@ const auth = require("./services/authentication");
 const multer = require("multer");
 const multerConfig = require("./config/multer");
 const { transporter } = require("./controller/email/email");
+const scheduling = require("./controller/scheduling/schedulingcontroller");
 routes.get("/", async (req, res) => {
   try {
     res.json({ message: "Conexão está OK!" });
@@ -64,7 +65,6 @@ routes.post("/user/authenticate", async (req, res) => {
       "select login,senha,idusuario,nome from usuario where login = $1",
       [login]
     );
-
     if (
       !getUser.rows[0] ||
       !(await bcrypt.compare(password, getUser.rows[0].senha))
@@ -138,6 +138,19 @@ routes.put("/user/put/update", auth.validadeToken, async (req, res) => {
       message: "Algo deu errado",
     });
 });
+routes.get("/user/scheduling", auth.validadeToken, async (req, res) => {
+  const result = await scheduling.workspace();
+  return res.send({ success: true, workspace: result });
+});
+routes.post("/user/scheduling", auth.validadeToken, async (req, res) => {
+  try {
+    const result = await scheduling.scheduling(req.body);
+    if (result) return res.send({ success: true, workspace: result });
+    return { success: false, message: "Algo deu errado" };
+  } catch (error) {
+    res.status(403).send({ success: false, message: error });
+  }
+});
 routes.post("/workspace/register", async (req, res) => {
   const { login, password, name, cnpj, inscricaoEstadual, email } = req.body;
   if (!login || !password || !name || !cnpj || !inscricaoEstadual || !email)
@@ -207,11 +220,25 @@ routes.post(
       .send({ success: false, message: "Algo deu de errado!" });
   }
 );
-routes.get("/workspace/get", auth.getToken, async (req, res) => {
+routes.get("/workspace/", auth.getToken, async (req, res) => {
   console.log("Entrei");
   const result = await workspace.get(req.body);
   return res.send({ success: true, workspace: result });
 });
+routes.put("/workspace/", auth.getToken, async (req, res) => {
+  try {
+    const result = await workspace.update(req.body);
+    if (result)
+      return res.send({
+        success: true,
+        message: "Oficina Atualizada com sucess",
+      });
+    else throw "Algo deu errado!";
+  } catch (error) {
+    res.status(500).send({ success: false, message: error });
+  }
+});
+
 routes.post("/admin/register", async (req, res) => {
   await admin.Register(req.body);
   return res.send({ mensage: "Registado com sucesso" });

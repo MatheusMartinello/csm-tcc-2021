@@ -94,6 +94,51 @@ const workspace = {
       throw error;
     }
   },
+  async update({
+    name = null,
+    cnpj = null,
+    inscricaoEstadual = null,
+    cep = null,
+    lograduro = null,
+    numero = null,
+    bairro = null,
+    email = null,
+    senha = null,
+    idoficina,
+  }) {
+    try {
+      const workspace = await pool.query(
+        "select * from oficina o where o.idoficina = $1",
+        [idoficina]
+      );
+      if (name === null) {
+        name = workspace.rows[0].nome;
+      }
+      if (cnpj === null) {
+        cnpj = workspace.rows[0].cnpj;
+      }
+      if (inscricaoEstadual === null) {
+        inscricaoEstadual = workspace.rows[0].inscricaoestadual;
+      }
+      if (email === null) {
+        email = workspace.rows[0].email;
+      }
+      if (password != null) {
+        password = bcrypt.hash(password, 10);
+      }
+      if (password === null) {
+        password = workspace.rows[0].password;
+      }
+      await pool.query(
+        "update oficina set nome = $1,inscricaoestadual =$2,cnpj =$3,email =$4,senha =$5 where idoficina = $6",
+        [name, inscricaoEstadual, cnpj, email, senha, idoficina]
+      );
+      return true;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  },
 };
 
 module.exports = workspace;

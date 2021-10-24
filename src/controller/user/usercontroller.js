@@ -107,8 +107,8 @@ const user = {
       if (password == null) password = _user.rows[0].password;
 
       await pool.query(
-        "UPDATE USUARIO set nome = $1, cpf = $2, rg = $3, senha= $4",
-        [name, cpf, rg, password]
+        "UPDATE USUARIO set nome = $1, cpf = $2, rg = $3, senha= $4 where idusuario = $5",
+        [name, cpf, rg, password, idusuario]
       );
       return true;
     } catch (error) {
