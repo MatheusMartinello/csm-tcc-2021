@@ -121,7 +121,7 @@ CREATE TABLE Carro
  Modelo    varchar(50) NOT NULL,
  Marca     varchar(50) NOT NULL,
  Renavam   varchar(50) NOT NULL,
- CONSTRAINT PK_carro PRIMARY KEY ( IdCarro, IdUsuario ),
+ CONSTRAINT PK_carro PRIMARY KEY ( IdCarro ),
  CONSTRAINT FK_26 FOREIGN KEY ( IdUsuario ) REFERENCES Usuario ( IdUsuario )
 );
 
@@ -144,7 +144,7 @@ CREATE TABLE DadosImagem
  IdUsuario     integer,
  IdCarro       integer,
  CONSTRAINT PK_dadosimagem PRIMARY KEY ( IdDadosImagem ),
- CONSTRAINT FK_109 FOREIGN KEY ( IdCarro, IdUsuario ) REFERENCES Carro ( IdCarro, IdUsuario ),
+ CONSTRAINT FK_109 FOREIGN KEY ( IdCarro ) REFERENCES Carro ( IdCarro ),
  CONSTRAINT FK_40 FOREIGN KEY ( IdOficina ) REFERENCES Oficina ( IdOficina ),
  CONSTRAINT FK_43 FOREIGN KEY ( IdUsuario ) REFERENCES Usuario ( IdUsuario )
 );
@@ -174,9 +174,9 @@ CREATE TABLE OrdemDeServico
  IdOficina        bigint NOT NULL,
  IdCarro          integer NOT NULL,
  IdUsuario        integer NOT NULL,
- CONSTRAINT PK_ordemdeservico PRIMARY KEY ( IdOrdemDeServico, IdServico, IdOficina, IdCarro, IdUsuario ),
+ CONSTRAINT PK_ordemdeservico PRIMARY KEY ( IdOrdemDeServico ),
  CONSTRAINT FK_67 FOREIGN KEY ( IdServico, IdOficina ) REFERENCES Servicos ( IdServico, IdOficina ),
- CONSTRAINT FK_71 FOREIGN KEY ( IdCarro, IdUsuario ) REFERENCES Carro ( IdCarro, IdUsuario )
+ CONSTRAINT FK_71 FOREIGN KEY ( IdCarro ) REFERENCES Carro ( IdCarro )
 );
 
 CREATE INDEX fkIdx_68 ON OrdemDeServico
@@ -195,6 +195,7 @@ CREATE INDEX fkIdx_72 ON OrdemDeServico
 
 CREATE TABLE DescricaoServico
 (
+ IdDescricaoServico integer NOT NULL,
  IdOrdemDeServico integer NOT NULL,
  IdServico        integer NOT NULL,
  IdOficina        bigint NOT NULL,
@@ -203,8 +204,8 @@ CREATE TABLE DescricaoServico
  IdPeca           integer NOT NULL,
  Quantidade       integer NOT NULL,
  Valor            numeric(18,0) NOT NULL,
- CONSTRAINT PK_table_77 PRIMARY KEY ( IdOrdemDeServico, IdServico, IdOficina, IdCarro, IdUsuario, IdPeca ),
- CONSTRAINT FK_77 FOREIGN KEY ( IdOrdemDeServico, IdServico, IdOficina, IdCarro, IdUsuario ) REFERENCES OrdemDeServico ( IdOrdemDeServico, IdServico, IdOficina, IdCarro, IdUsuario ),
+ CONSTRAINT PK_table_77 PRIMARY KEY ( IdDescricaoServico ),
+ CONSTRAINT FK_77 FOREIGN KEY ( IdOrdemDeServico ) REFERENCES OrdemDeServico ( IdOrdemDeServico ),
  CONSTRAINT FK_85 FOREIGN KEY ( IdPeca ) REFERENCES Pecas ( IdPeca )
 );
 
@@ -254,7 +255,3 @@ CREATE TABLE UsuariosAdmin
  Senha          varchar(50) NOT NULL,
  CONSTRAINT PK_usuariosadmin PRIMARY KEY ( IdUsuarioAdmin )
 );
-
-
-
-
