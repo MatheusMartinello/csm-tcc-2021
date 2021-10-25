@@ -129,11 +129,11 @@ const user = {
     );
     return true;
   },
-  async createCarDoc({ idusuario, idcarro }, url) {
+  async createCarDoc({ idusuario, idcarro, idoficina }, url) {
     try {
       await pool.query(
-        "INSERT INTO dadosimagem(urldocumento,tipodocumento,idusuario,idcarro) values($1,$2,$3,$4)",
-        [url, 3, idusuario, idcarro]
+        "INSERT INTO dadosimagem(urldocumento,tipodocumento,idusuario,idcarro,idoficina) values($1,$2,$3,$4,$5)",
+        [url, 3, idusuario, idcarro, idoficina]
       );
       return;
     } catch (error) {
