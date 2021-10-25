@@ -104,7 +104,11 @@ routes.post(
   multer(multerConfig).single("file"),
   async (req, res) => {
     try {
-      const { originalname: name, size, key, location: url = "" } = req.file;
+        const { originalname: name, size, key, location: url = "" } = req.file;
+        const { idcarro } = req.body;
+        if (!idcarro) {
+            return res.status(400).json({sucesso: false, message: 'Informe o id do carro.'})
+        }
       await user.createCarDoc(req.body, url);
       return res.send({
         success: true,
