@@ -255,3 +255,23 @@ CREATE TABLE UsuariosAdmin
  Senha          varchar(50) NOT NULL,
  CONSTRAINT PK_usuariosadmin PRIMARY KEY ( IdUsuarioAdmin )
 );
+
+CREATE TABLE UsuarioOficina(
+  IdUsuarioOficina serial not null,
+  Nome varchar(250) null,
+  ContatoUsuario varchar(250) null,
+  Email varchar(250) null
+  IdOficina integer null,
+  CONSTRAINT PK_UsuarioOficina PRIMARY KEY (IdUsuarioOficina)
+  CONSTRAINT FK_IdOficina FOREIGN KEY (IdOficina) REFERENCES Oficina(IdOficina) 
+)
+
+create table maodeobra(
+	idmaodeobra serial not null,
+	responsavel varchar(250) null,
+	valor decimal not null,	
+	qnthoras integer null,
+	idordemdeservico integer not null,
+	constraint pk_maodeobra primary key (idmaodeobra),
+	constraint fk_ordemdeservico foreign key (idordemdeservico) references ordemdeservico(idordemdeservico)
+)

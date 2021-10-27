@@ -11,13 +11,19 @@ const scheduling = {
       throw error;
     }
   },
-  async scheduling({ idoficina, idusuario, dateTime }) {
+  async scheduling({ idoficina, idusuario, dateTime, idcarro = null }) {
     const date = format(parseISO(dateTime), "MM/dd/yyyy hh:mma");
-    console.log(date);
     try {
+      if (idcarro == null) {
+        await pool.query(
+          "insert into agenda (idusuario,idoficina,datahorario) values ($1,$2,$3)",
+          [idusuario, idoficina, date]
+        );
+        return true;
+      }
       await pool.query(
-        "insert into agenda (idusuario,idoficina,datahorario) values ($1,$2,$3)",
-        [idusuario, idoficina, date]
+        "insert into agenda (idusuario,idoficina,datahorario,idcarro) values ($1,$2,$3)",
+        [idusuario, idoficina, date, idcarro]
       );
       return true;
     } catch (error) {

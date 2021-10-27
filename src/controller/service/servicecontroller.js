@@ -44,6 +44,34 @@ const service = {
         throw "Carro informado não localizado";
     }
   },
+  async newWorkspaceUser(idoficina, nomeCliente, email, contatoCliente) {
+    await pool.query(
+      "insert into usuariooficina (nome,email,contatousuario,idoficina, placa) values($1,$2,$3,$4)",
+      [nomeCliente, email, contatoCliente, idoficina]
+    );
+    const userWorkspace = pool.query(
+      "select idusuariooficina from usuariooficina where nome = $1",
+      [nomeCliente]
+    );
+    return userWorkspace.rows[0];
+  },
+  async newCarUserWorkSpace(idusuariooficina, modelo, marca, cor, placa) {
+    try {
+      await pool.query(
+        "insert into carro (idusuariooficina,modelo,marca,cor, placa) values($1,$2,$3,$4)",
+        [idusuariooficina, modelo, marca, cor, placa]
+      );
+      const car = await pool.query(
+        "select idcarro from usuario where idusuariooficna=$1 and placa=$2",
+        [idusuariooficina, placa]
+      );
+      return car.rows[0];
+    } catch (error) {
+      console.error(error);
+    }
+  },
+  async newOrderOfWorkspaceUser(idoficina) {},
+  async newOrderWork() {},
 };
 
 module.exports = service;
