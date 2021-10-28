@@ -308,7 +308,7 @@ routes.get(
     }
   }
 );
-routes.get("/admin/user/getdocument", auth.validadeToken, async (req, res) => {
+routes.post("/admin/user/getdocument", auth.validadeToken, async (req, res) => {
   try {
     const result = await admin.getDocument(req.body);
     console.log(result);
