@@ -3,6 +3,7 @@ const app = express();
 const routes = require("./routes");
 const cors = require("cors");
 const database = require("./config/database");
+const { json } = require("body-parser");
 require("dotenv").config();
 //Routes`
 app.use(
@@ -16,9 +17,4 @@ app.use(routes);
 
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server open in port 3000!");
-  console.log("Chaves de ambiente");
-  console.log(process.env.HEROKU_DB);
-  console.log(process.env.HEROKU_PASSWORD);
-  console.log(process.env.HEROKU_USER);
-  console.log(process.env.HEROKU_HOST);
 });

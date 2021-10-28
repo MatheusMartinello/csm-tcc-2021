@@ -118,7 +118,7 @@ const admin = {
   async getDocumentWorkspace({ idoficina }) {
     try {
       const result = await pool.query(
-        "select d.urldocumento  from oficina o inner join dadosimagem d on o.idoficina = d.idoficina where o.statusdocument = 3  and d.tipodocumento = 4 and o.idoficina = $1",
+        "select d.urldocumento  from oficina o inner join dadosimagem d on o.idoficina = d.idoficina where d.tipodocumento = 4 and o.idoficina = $1",
         [idoficina]
       );
       console.log(result);
@@ -163,12 +163,12 @@ const admin = {
     idusuario = null,
     idoficina = null,
     idcarro = null,
-    mensagemEmail,
+    mensagemEmail = null,
   }) {
     try {
-      console.log(idusuario);
-      console.log(idcarro);
-      console.log(idoficina);
+      if (mensagemEmail == null || mensagemEmail == undefined) {
+        mensagemEmail = "Ocorreu a aprovação!";
+      }
       if (idusuario != undefined && (idcarro == null || idcarro == undefined)) {
         await pool.query(
           "update usuario set statusdocument = 1 where IdUsuario = $1",

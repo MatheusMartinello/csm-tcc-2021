@@ -10,6 +10,7 @@ const multer = require("multer");
 const multerConfig = require("./config/multer");
 const { transporter } = require("./controller/email/email");
 const scheduling = require("./controller/scheduling/schedulingcontroller");
+const service = require("./controller/service/servicecontroller");
 routes.get("/", async (req, res) => {
   try {
     res.json({ message: "Conexão está OK!" });
@@ -104,11 +105,13 @@ routes.post(
   multer(multerConfig).single("file"),
   async (req, res) => {
     try {
-        const { originalname: name, size, key, location: url = "" } = req.file;
-        const { idcarro } = req.body;
-        if (!idcarro) {
-            return res.status(400).json({sucesso: false, message: 'Informe o id do carro.'})
-        }
+      const { originalname: name, size, key, location: url = "" } = req.file;
+      const { idcarro } = req.body;
+      if (!idcarro) {
+        return res
+          .status(400)
+          .json({ sucesso: false, message: "Informe o id do carro." });
+      }
       await user.createCarDoc(req.body, url);
       return res.send({
         success: true,
@@ -213,7 +216,7 @@ routes.post(
   async (req, res) => {
     const { originalname: name, size, key, location: url = "" } = req.file;
     const { idoficina } = req.body;
-    const _return = await user.createDoc(idoficina, url);
+    const _return = await workspace.createDoc(idoficina, url);
     if (_return === true)
       return res.json({
         success: true,
@@ -224,12 +227,12 @@ routes.post(
       .send({ success: false, message: "Algo deu de errado!" });
   }
 );
-routes.get("/workspace/", auth.getToken, async (req, res) => {
+routes.get("/workspace/", auth.validadeToken, async (req, res) => {
   console.log("Entrei");
   const result = await workspace.get(req.body);
   return res.send({ success: true, workspace: result });
 });
-routes.put("/workspace/", auth.getToken, async (req, res) => {
+routes.put("/workspace/", auth.validadeToken, async (req, res) => {
   try {
     const result = await workspace.update(req.body);
     if (result)
@@ -242,7 +245,13 @@ routes.put("/workspace/", auth.getToken, async (req, res) => {
     res.status(500).send({ success: false, message: error });
   }
 });
-
+routes.post("/workspace/new/service", auth.validadeToken, async (req, res) => {
+  const serviceResult = await service.newServicePost(req.body);
+  return res.send({
+    success: true,
+    message: "Ordem de serviço cadastrada com sucesso.",
+  });
+});
 routes.post("/admin/register", async (req, res) => {
   await admin.Register(req.body);
   return res.send({ mensage: "Registado com sucesso" });

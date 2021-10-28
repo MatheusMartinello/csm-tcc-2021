@@ -74,8 +74,8 @@ const workspace = {
   async createDoc(idoficina, url) {
     try {
       await pool.query(
-        "INSERT INTO dadosimagem(urldocumento,tipodocumento,idusuario) values ($1,$2,$3)",
-        [url, 1, idoficina]
+        "INSERT INTO dadosimagem(urldocumento,tipodocumento,idoficina) values ($1,$2,$3)",
+        [url, 4, idoficina]
       );
       return true;
     } catch (error) {
