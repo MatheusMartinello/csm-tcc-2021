@@ -7,6 +7,8 @@ const options = {
 };
 
 async function returnObjectOfMaps(street) {
+  console.log(options);
+  console.log(street);
   const geocoder = NodeGeocoder(options);
   const res = await geocoder.geocode(street);
   return res[0];
