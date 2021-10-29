@@ -11,6 +11,7 @@ async function returnObjectOfMaps(street) {
   console.log(street);
   const geocoder = NodeGeocoder(options);
   const res = await geocoder.geocode(street);
+  console.log(res);
   return res[0];
 }
 module.exports = returnObjectOfMaps;
