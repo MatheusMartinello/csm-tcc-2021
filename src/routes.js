@@ -177,17 +177,19 @@ routes.post("/workspace/register", async (req, res) => {
       error: "Senha deve conter mais do que 6 dígitos!",
       success: "false",
     });
+  try {
+    const result = await workspace.Register(req.body);
 
-  const result = await workspace.Register(req.body);
-  if (result == "error")
+    return res.send({
+      massage: "Oficina cadastrada com sucesso!",
+      success: "true",
+    });
+  } catch (error) {
     return res.status(400).send({
       error: "Erro durante o processo de registro da ofina",
       success: "false",
     });
-  return res.send({
-    massage: "Oficina cadastrada com sucesso!",
-    success: "true",
-  });
+  }
 });
 routes.post("/workspace/authenticate", async (req, res) => {
   try {
@@ -245,12 +247,42 @@ routes.put("/workspace/", auth.validadeToken, async (req, res) => {
     res.status(500).send({ success: false, message: error });
   }
 });
+routes.post(
+  "/workspace/getListServices",
+  auth.validadeToken,
+  async (req, res) => {
+    try {
+      const result = await service.getListServices(req.body);
+      return res.send({ success: true, services: result });
+    } catch (error) {
+      res.status(500).send({ success: false, message: error });
+    }
+  }
+);
 routes.post("/workspace/new/service", auth.validadeToken, async (req, res) => {
   const serviceResult = await service.newServicePost(req.body);
   return res.send({
     success: true,
     message: "Ordem de serviço cadastrada com sucesso.",
   });
+});
+routes.post("/workspace/get/service", auth.validadeToken, async (req, res) => {
+  const serviceResult = await service.getService(req.body);
+  return res.send({
+    success: true,
+    serviceResult,
+  });
+});
+routes.put("/workspace/put/service", auth.validadeToken, async (req, res) => {
+  try {
+    const serviceResult = await service.UpdateService(req.body);
+    return res.send({
+      success: true,
+      message: "Ordem de serviço atualizada com sucesso.",
+    });
+  } catch (err) {
+    res.status(500).send({ success: false, message: err });
+  }
 });
 routes.post("/admin/register", async (req, res) => {
   await admin.Register(req.body);
@@ -329,7 +361,7 @@ routes.get(
     }
   }
 );
-routes.get(
+routes.post(
   "/admin/user/car/getdocument",
   auth.validadeToken,
   async (req, res) => {

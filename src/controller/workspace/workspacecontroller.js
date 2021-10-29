@@ -2,6 +2,8 @@ const pool = require("../../database/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const authConfig = require("../../config/auth.json");
+const returnLatLon = require("../../services/geolocation");
+const returnObjectOfMaps = require("../../services/geolocation");
 
 const workspace = {
   async Register({
@@ -22,8 +24,9 @@ const workspace = {
     try {
       password = await bcrypt.hash(password, 10);
 
-      await pool.query(
-        "INSERT INTO oficina(nome,razaosocial,cnpj,login,email,senha,datacriacao,inscricaoestadual) values ($1,$2,$3,$4,$5,$6,$7,$8)",
+      await pool.query("begin");
+      const idworkspace = await pool.query(
+        "INSERT INTO oficina(nome,razaosocial,cnpj,login,email,senha,datacriacao,inscricaoestadual) values ($1,$2,$3,$4,$5,$6,$7,$8) returning *",
         [
           name,
           razaosocial,
@@ -35,19 +38,28 @@ const workspace = {
           inscricaoEstadual,
         ]
       );
-      const idworkspace = await pool.query(
-        "SELECT idoficina FROM oficina where Login = $1",
-        [login]
-      );
-      console.log(idworkspace.rows);
+
       if (idworkspace.rows[0].idoficina === null)
         throw "Não foi possivel criar a oficina";
-      // await pool.query(
-      //   "INSERT INTO endereco(rua,numero,complemento,cep,latitude,longitude) values($1,$2,$3,$4,$5,$6)",
-      //   [address, num, complemento, cep, latitude, longitute]
-      // );
+
+      const res = await returnObjectOfMaps(address + " " + num);
+      console.log(res);
+      await pool.query(
+        "INSERT INTO endereco(rua,numero,complemento,latitude,longitude,idoficina,cep) values($1,$2,$3,$4,$5,$6,$7)",
+        [
+          res.formattedAddress,
+          num,
+          complemento,
+          res.latitude,
+          res.longitude,
+          idworkspace.rows[0].idoficina,
+          res.zipcode,
+        ]
+      );
+      await pool.query("end");
       return true;
     } catch (error) {
+      await pool.query("rollback");
       console.error(error);
       throw "Não foi possivel criar a oficina" + error;
     }

@@ -46,8 +46,8 @@ const service = {
         placa
       );
       const idOS = await pool.query(
-        "insert into ordemdeservico (idoficina,idcarro,idusuarioanonimo,status) values($1,$2,$3,$4) returning *",
-        [idoficina, idcaruserworkspace, iduserworkspace, status]
+        "insert into ordemdeservico (idoficina,idcarro,idusuarioanonimo,status,descricao,car_km) values($1,$2,$3,$4,$5,$6) returning *",
+        [idoficina, idcaruserworkspace, iduserworkspace, status, descricao, km]
       );
 
       for (const element of pecas) {
@@ -78,6 +78,7 @@ const service = {
     } catch (error) {
       await pool.query("rollback");
       console.error(error);
+      return false;
     }
   },
   async newWorkspaceUser(idoficina, nomeCliente, email, contatoCliente) {
@@ -106,6 +107,115 @@ const service = {
       return car.rows[0].idcarro;
     } catch (error) {
       console.error(error);
+    }
+  },
+  async getListServices({ idoficina }) {
+    const query =
+      "select o.*,c.modelo,c.marca,c.placa, coalesce (m.valor,0) as maodeobra from ordemdeservico o inner join carro c on c.idcarro = o.idcarro left join maodeobra m on m.idordemdeservico = o.idordemdeservico where idoficina = $1 order by createat, idordemdeservico desc";
+    try {
+      const result = await pool.query(query, [idoficina]);
+      return result.rows;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  },
+  async getService({ idordemdeservico }) {
+    const parts = await this.getParts(idordemdeservico);
+    const mo = await this.getMO(idordemdeservico);
+
+    const query =
+      "select o.*," +
+      "c.modelo," +
+      "c.marca," +
+      "c.placa," +
+      "o.car_km," +
+      "case when u.nome is null " +
+      "          then u2.nome " +
+      "          else u.nome " +
+      "          end as nome," +
+      "case when t.telefonecompleto is null" +
+      "          then u2.contatousuario " +
+      "          else t.telefonecompleto " +
+      "          end as contatoCliente ," +
+      "case when u.email is null " +
+      "          then u2.email " +
+      "          else u.email " +
+      "          end as email " +
+      "from ordemdeservico o " +
+      "inner join carro c on c.idcarro = o.idcarro " +
+      "left join usuario u on u.idusuario = o.idusuario " +
+      "left join telefone t on t.idusuario = u.idusuario " +
+      "left join usuariooficina u2 on u2.idusuariooficina = o.idusuarioanonimo " +
+      "where idordemdeservico = $1";
+
+    const result = await pool.query(query, [idordemdeservico]);
+
+    const objResult = {
+      os: result.rows[0],
+      pecas: parts,
+      maoobra: mo,
+    };
+
+    return objResult;
+  },
+  async getParts(idordemdeservico) {
+    const query =
+      "select p.nome ,d.quantidade , p.valorunitario, p.idpeca" +
+      " from ordemdeservico o " +
+      "inner join descricaoservico d " +
+      "on o.idordemdeservico = d.idordemdeservico " +
+      "left join pecas p " +
+      "on p.idpeca = d.idpeca " +
+      "where o.idordemdeservico = $1";
+    const result = await pool.query(query, [idordemdeservico]);
+    return result.rows;
+  },
+  async getMO(idordemdeservico) {
+    const query =
+      "select m.* from ordemdeservico o inner join maodeobra m on o.idordemdeservico = m.idordemdeservico where o.idordemdeservico = $1";
+    const result = await pool.query(query, [idordemdeservico]);
+    return result.rows;
+  },
+  async UpdateService({ pecas, maoobra, idordemdeservico }) {
+    try {
+      await pool.query("begin");
+      console.log(pecas);
+      if (pecas != null || pecas != undefined) {
+        const queryP =
+          "update pecas set valorunitario = $1, nome = $2 where idpeca =$3";
+        const queryD =
+          "update descricaoservico set quantidade = $1,valor = $2 where idpeca = $3";
+        for (const element of pecas) {
+          const { nome, valorunitario, quantidade, idpeca } = element;
+          console.log(element);
+          await pool.query(queryP, [valorunitario, nome, idpeca]);
+          await pool.query(queryD, [
+            quantidade,
+            valorunitario * quantidade,
+            idpeca,
+          ]);
+        }
+      }
+      if (maoobra != null || maoobra != undefined) {
+        const query =
+          "update maodeobra set valor = $1, responsavel = $2, qnthoras = $3 where idmaodeobra = $4 and idordemdeservico = $5";
+        for (const element of maoobra) {
+          const { responsavel, valor, qnthoras = null, idmaodeobra } = element;
+          await pool.query(query, [
+            valor,
+            responsavel,
+            qnthoras,
+            idmaodeobra,
+            idordemdeservico,
+          ]);
+        }
+      }
+      return true;
+    } catch (error) {
+      console.log(error);
+      await pool.query("rollback");
+      throw error;
     }
   },
 };

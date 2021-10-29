@@ -11,25 +11,38 @@ const scheduling = {
       throw error;
     }
   },
-  async scheduling({ idoficina, idusuario, dateTime, idcarro = null }) {
-    const date = format(parseISO(dateTime), "MM/dd/yyyy hh:mma");
-    const dateEnd = format(
-      (parseISO(new Date().setDate() + 7), "MM/dd/yyyy hh:mma")
+  async scheduling({ idoficina, idusuario, dateTime, idcarro }) {
+    const result = parseISO(dateTime).setDate(
+      parseISO(dateTime).getDate() + 11
     );
+
+    const date = format(parseISO(dateTime), "MM/dd/yyyy hh:mma");
+
+    const dateEnd = format(result, "MM/dd/yyyy hh:mma");
+    console.log(dateEnd);
     try {
+      await pool.query("begin");
       if (idcarro == null) {
+        console.log("ERRODESC");
         await pool.query(
-          "insert into agenda (idusuario,idoficina,datahorario,datahorafim) values ($1,$2,$3)",
+          "insert into agenda (idusuario,idoficina,datahorario,datahorafim) values ($1,$2,$3,$4)",
           [idusuario, idoficina, date, dateEnd]
         );
         return true;
       }
       await pool.query(
-        "insert into agenda (idusuario,idoficina,datahorario,idcarro,datahorafim) values ($1,$2,$3)",
-        [idusuario, idoficina, date, idcarro, dataEnd]
+        "insert into agenda (idusuario,idoficina,datahorario,idcarro,datahorafim) values ($1,$2,$3,$4,$5)",
+        [idusuario, idoficina, date, idcarro, dateEnd]
       );
+      await pool.query(
+        "INSERT INTO ordemdeservico (idoficina,idcarro,idusuario,status) values($1,$2,$3,$4) returning *",
+        [idoficina, idcarro, idusuario, "Em Aberto"]
+      );
+      await pool.query("end");
       return true;
     } catch (error) {
+      await pool.query("rollback");
+      console.log(error);
       throw error;
     }
   },
