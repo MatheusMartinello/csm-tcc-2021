@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const authConfig = require("../../config/auth.json");
 const { transporter } = require("../email/email");
+const sendEmail = require("../email/email");
 
 const admin = {
   async Register({ login, password }) {
@@ -184,13 +185,7 @@ const admin = {
           subject: "Aprovado!",
           text: mensagemEmail,
         };
-        transporter.send(mailOptions, function (error, info) {
-          if (error) {
-            console.log(error);
-          } else {
-            console.log("Email sent: " + info.response);
-          }
-        });
+        sendEmail(user.rows[0].email, mensagemEmail, "Aprovado?");
         return;
       }
       if (idusuario != null && idcarro != null) {

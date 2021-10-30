@@ -127,7 +127,7 @@ const user = {
 
     await pool.query(
       "INSERT INTO Carro(modelo,marca,renavam,placa,idusuario,statusdocument) values ($1,$2,$3,$4,$5)",
-      [modelo, marca, cor, renavam, placa, idusuario, 3]
+      [modelo, marca, cor, renavam, placa.ToUpperCase(), idusuario, 3]
     );
     return true;
   },

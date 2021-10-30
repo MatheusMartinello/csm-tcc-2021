@@ -11,6 +11,7 @@ const multerConfig = require("./config/multer");
 const { transporter } = require("./controller/email/email");
 const scheduling = require("./controller/scheduling/schedulingcontroller");
 const service = require("./controller/service/servicecontroller");
+const historic = require("./controller/historic/historiccontroller");
 routes.get("/", async (req, res) => {
   try {
     res.json({ message: "Conexão está OK!" });
@@ -158,6 +159,26 @@ routes.post("/user/scheduling", auth.validadeToken, async (req, res) => {
     res.status(403).send({ success: false, message: error });
   }
 });
+routes.get(
+  "/user/historic/placa/:placa",
+  auth.validadeToken,
+  async (req, res) => {
+    const result = await historic.GetListHistoric(req.params);
+    res.send({ success: true, historic: result });
+  }
+);
+routes.get(
+  "/user/historic/service/:idordemservico",
+  auth.validadeToken,
+  async (req, res) => {
+    const result = await historic.GetServiceRestricted(req.params);
+    res.send({ success: true, service: result });
+  }
+);
+routes.get("/workspace/placa/:placa", auth.validadeToken, async (req, res) => {
+  const result = await historic.GetListHistoric(req.params);
+  res.send({ success: true, historic: result });
+});
 routes.post("/workspace/register", async (req, res) => {
   const { login, password, name, cnpj, inscricaoEstadual, email } = req.body;
   if (!login || !password || !name || !cnpj || !inscricaoEstadual || !email)
@@ -195,7 +216,7 @@ routes.post("/workspace/authenticate", async (req, res) => {
   try {
     const { login, password } = req.body;
     const getUser = await pool.query(
-      "select login,senha from oficina where login = $1",
+      "select login,senha,idoficina from oficina where login = $1",
       [login]
     );
 
@@ -206,7 +227,11 @@ routes.post("/workspace/authenticate", async (req, res) => {
       return res.status(400).send({ error: "Login ou senha Inválidos!" });
     const token = await workspace.authUser(req.body);
     if (token == "error") throw "Algo deu de errado na autenticação";
-    return res.send({ message: "Login logado com sucesso", token: token });
+    return res.send({
+      message: "Login logado com sucesso",
+      token: token,
+      idoficina: getUser.rows[0].idoficina,
+    });
   } catch (error) {
     return res.status(400).send({ error: error });
   }
@@ -229,9 +254,9 @@ routes.post(
       .send({ success: false, message: "Algo deu de errado!" });
   }
 );
-routes.get("/workspace/", auth.validadeToken, async (req, res) => {
+routes.get("/workspace/:idoficina", auth.validadeToken, async (req, res) => {
   console.log("Entrei");
-  const result = await workspace.get(req.body);
+  const result = await workspace.get(req.params);
   return res.send({ success: true, workspace: result });
 });
 routes.put("/workspace/", auth.validadeToken, async (req, res) => {

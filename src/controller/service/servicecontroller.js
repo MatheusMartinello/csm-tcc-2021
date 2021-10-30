@@ -95,14 +95,19 @@ const service = {
   },
   async newCarUserWorkSpace(idusuariooficina, modelo, marca, cor, placa) {
     try {
-      await pool.query(
-        "insert into carro (idusuariooficina,modelo,marca,cor, placa) values($1,$2,$3,$4,$5)",
-        [idusuariooficina, modelo, marca, cor, placa]
-      );
-      const car = await pool.query(
-        "select idcarro from carro where idusuariooficina=$1 and placa=$2",
-        [idusuariooficina, placa]
-      );
+      const car = await pool.query("select idcarro from carro where placa=$1", [
+        placa,
+      ]);
+      if (car.rows[0].idcarro != null || car.rows[0].idcarro == undefined)
+        await pool.query(
+          "Update carro set idusuariooficina = $1 where idcarro =$2",
+          [idusuariooficina, car.rows[0].idcarro]
+        );
+      if (car.rows[0].idcarro == null || car.rows[0].idcarro == undefined)
+        await pool.query(
+          "insert into carro (idusuariooficina,modelo,marca,cor, placa) values($1,$2,$3,$4,$5)",
+          [idusuariooficina, modelo, marca, cor, placa.toUpperCase()]
+        );
 
       return car.rows[0].idcarro;
     } catch (error) {

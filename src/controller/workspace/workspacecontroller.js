@@ -96,8 +96,7 @@ const workspace = {
   },
   async get({ idoficina }) {
     try {
-      console.log(idoficina);
-      const result = pool.query(
+      const result = await pool.query(
         "SELECT nome,email,inscricaoestadual from oficina where idoficina = $1",
         [idoficina]
       );
