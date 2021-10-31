@@ -165,8 +165,51 @@ const admin = {
     idoficina = null,
     idcarro = null,
     mensagemEmail = null,
+    aprovado = false,
   }) {
     try {
+      if (aprovado == false) {
+        if (idusuario != null && idcarro == null) {
+          const user = await pool.query(
+            "select email from usuario where idusuario = $1",
+            [idusuario]
+          );
+          await pool.query(
+            "update usuario set statusdocument = 2 where IdUsuario = $1",
+            [idusuario]
+          );
+          sendEmail(user.rows[0].email, mensagemEmail, "Reporvado!");
+          return;
+        }
+        if (idusuario != null && idcarro != null) {
+          const user = await pool.query(
+            "select email from usuario where idusuario = $1",
+            [idusuario]
+          );
+          await pool.query(
+            "update carro set statusdocument = 2  where idusuario = $1 and idcarro = $2",
+            [idusuario, idcarro]
+          );
+          sendEmail(user.rows[0].email, mensagemEmail, "Carro reporvado!");
+          return;
+        }
+        if (idoficina != null) {
+          const workspace = await pool.query(
+            "select email from oficina where idoficina = $1",
+            [idoficina]
+          );
+          await pool.query(
+            "update oficina set statusdocument = 1  where idoficina = $1 ",
+            [idoficina]
+          );
+          sendEmail(
+            workspace.rows[0].email,
+            mensagemEmail,
+            "Oficina Reprovada!"
+          );
+          return;
+        }
+      }
       if (mensagemEmail == null || mensagemEmail == undefined) {
         mensagemEmail = "Ocorreu a aprovação!";
       }
@@ -179,12 +222,6 @@ const admin = {
           "SELECT email from Usuario where IdUsuario = $1",
           [idusuario]
         );
-        var mailOptions = {
-          from: "csmmaintencecompany@gmail.com",
-          to: user.rows[0].email,
-          subject: "Aprovado!",
-          text: mensagemEmail,
-        };
         sendEmail(user.rows[0].email, mensagemEmail, "Aprovado?");
         return;
       }
@@ -197,19 +234,7 @@ const admin = {
           "SELECT email from usuario where idusuario = $1",
           [idusuario]
         );
-        var mailOptions = {
-          from: "csmmaintencecompany@gmail.com",
-          to: user.rows[0].email,
-          subject: "Aprovado!",
-          text: mensagemEmail,
-        };
-        transporter.sendMail(mailOptions, function (error, info) {
-          if (error) {
-            console.log(error);
-          } else {
-            console.log("Email sent: " + info.response);
-          }
-        });
+        sendEmail(user.rows[0].email, mensagemEmail, "Aprovado?");
         return;
       }
       if (idoficina != null) {
@@ -221,19 +246,7 @@ const admin = {
           "SELECT email from oficina where idoficina = $1",
           [idoficina]
         );
-        var mailOptions = {
-          from: "csmmaintencecompany@gmail.com",
-          to: user.rows[0].email,
-          subject: "Aprovado!",
-          text: mensagemEmail,
-        };
-        transporter.send(mailOptions, function (error, info) {
-          if (error) {
-            console.log(error);
-          } else {
-            console.log("Email sent: " + info.response);
-          }
-        });
+        sendEmail(user.rows[0].email, mensagemEmail, "Aprovado?");
         return;
       }
       throw "Chegou aqui é pq deu ruim";

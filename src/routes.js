@@ -398,7 +398,7 @@ routes.post(
     }
   }
 );
-routes.get(
+routes.post(
   "/admin/workspace/getdocument",
   auth.validadeToken,
   async (req, res) => {

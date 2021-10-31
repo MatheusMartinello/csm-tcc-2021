@@ -116,7 +116,9 @@ const service = {
   },
   async getListServices({ idoficina }) {
     const query =
-      "select o.*,c.modelo,c.marca,c.placa, coalesce (m.valor,0) as maodeobra from ordemdeservico o inner join carro c on c.idcarro = o.idcarro left join maodeobra m on m.idordemdeservico = o.idordemdeservico where idoficina = $1 order by createat, idordemdeservico desc";
+      "select o.*,c.modelo,c.marca,c.placa, sum(coalesce (m.valor,0)) as maodeobra from ordemdeservico o inner join carro c on c.idcarro = o.idcarro left join maodeobra m on m.idordemdeservico = o.idordemdeservico where idoficina = $1 " +
+      "group by o.idordemdeservico,c.modelo,c.marca, c.placa " +
+      "order by createat, o.idordemdeservico desc";
     try {
       const result = await pool.query(query, [idoficina]);
       return result.rows;
