@@ -215,11 +215,11 @@ const admin = {
       }
       if (idusuario != undefined && (idcarro == null || idcarro == undefined)) {
         await pool.query(
-          "update usuario set statusdocument = 1 where IdUsuario = $1",
+          "update usuario set statusdocument = 1 where idusuario = $1",
           [idusuario]
         );
-        const user = pool.query(
-          "SELECT email from Usuario where IdUsuario = $1",
+        const user = await pool.query(
+          "SELECT email from usuario where idusuario = $1",
           [idusuario]
         );
         sendEmail(user.rows[0].email, mensagemEmail, "Aprovado?");
@@ -234,7 +234,7 @@ const admin = {
           "SELECT email from usuario where idusuario = $1",
           [idusuario]
         );
-        sendEmail(user.rows[0].email, mensagemEmail, "Aprovado?");
+        sendEail(user.rows[0].email, mensagemEmail, "Aprovado?");
         return;
       }
       if (idoficina != null) {

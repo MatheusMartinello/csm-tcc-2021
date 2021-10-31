@@ -179,6 +179,14 @@ routes.get("/workspace/placa/:placa", auth.validadeToken, async (req, res) => {
   const result = await historic.GetListHistoric(req.params);
   res.send({ success: true, historic: result });
 });
+routes.get(
+  "/workspace/agenda/:idoficina",
+  auth.validadeToken,
+  async (req, res) => {
+    const result = await scheduling.getscheduling(req.params);
+    res.send({ success: true, historic: result });
+  }
+);
 routes.post("/workspace/register", async (req, res) => {
   const { login, password, name, cnpj, inscricaoEstadual, email } = req.body;
   if (!login || !password || !name || !cnpj || !inscricaoEstadual || !email)
