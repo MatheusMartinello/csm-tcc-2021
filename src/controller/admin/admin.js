@@ -251,6 +251,7 @@ const admin = {
       }
       throw "Chegou aqui é pq deu ruim";
     } catch (error) {
+      console.log(error);
       throw error;
     }
   },
