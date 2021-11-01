@@ -167,6 +167,7 @@ const admin = {
     mensagemEmail = null,
     aprovado = false,
   }) {
+    await pool.query("begin");
     try {
       if (aprovado == false) {
         if (idusuario != null && idcarro == null) {
@@ -223,6 +224,7 @@ const admin = {
           [idusuario]
         );
         sendEmail(user.rows[0].email, mensagemEmail, "Aprovado?");
+        await pool.query("end");
         return;
       }
       if (idusuario != null && idcarro != null) {
@@ -230,11 +232,12 @@ const admin = {
           "update carro set statusdocument = 1  where idusuario = $1 and idcarro = $2",
           [idusuario, idcarro]
         );
-        const user = pool.query(
+        const user = await pool.query(
           "SELECT email from usuario where idusuario = $1",
           [idusuario]
         );
         sendEail(user.rows[0].email, mensagemEmail, "Aprovado?");
+        await pool.query("end");
         return;
       }
       if (idoficina != null) {
@@ -242,15 +245,19 @@ const admin = {
           "update oficina set statusdocument = 1  where idoficina = $1 ",
           [idoficina]
         );
-        const user = pool.query(
+        const user = await pool.query(
           "SELECT email from oficina where idoficina = $1",
           [idoficina]
         );
+        console.log(user.rows);
+
         sendEmail(user.rows[0].email, mensagemEmail, "Aprovado?");
+        await pool.query("end");
         return;
       }
       throw "Chegou aqui é pq deu ruim";
     } catch (error) {
+      await pool.query("rollback");
       console.log(error);
       throw error;
     }
