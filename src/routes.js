@@ -346,14 +346,14 @@ routes.post("/admin/auth", async (req, res) => {
 });
 routes.get("/admin/getUser", auth.validadeToken, async (req, res) => {
   const result = await pool.query(
-    "SELECT idusuario,login,cpf,rg,datanascimento,email,statusdocument from Usuario where statusdocument = 3"
+    "SELECT idusuario,login,cpf,rg,datanascimento,email,statusdocument from Usuario where statusdocument = 3 or statusdocument = 2"
   );
   return res.send({ users: result.rows });
 });
 routes.get("/admin/getworkspace", auth.validadeToken, async (req, res) => {
   console.log("Entrou aqui");
   const result = await pool.query(
-    "SELECT idoficina,login,nome,cnpj,razaosocial,datacriacao,statusdocument,inscricaoestadual from oficina where statusdocument = 3"
+    "SELECT idoficina,login,nome,cnpj,razaosocial,datacriacao,statusdocument,inscricaoestadual from oficina where statusdocument = 3 or statusdocument = 2"
   );
   console.log("Entrou aqui entao nao deu erro");
   return res.send({ users: result.rows });

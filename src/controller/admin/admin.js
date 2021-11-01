@@ -131,7 +131,7 @@ const admin = {
   async GetAllCarsToApprove() {
     try {
       const result = await pool.query(
-        "select c.*, u.login from carro c left join usuario u on u.idusuario = c.idusuario where u.statusdocument = 3 and c.statusdocument = 3 "
+        "select c.*, u.login from carro c left join usuario u on u.idusuario = c.idusuario where (u.statusdocument = 3 or u.statusdocument = 2) and c.statusdocument = 3 "
       );
       return result.rows;
     } catch (error) {
@@ -169,8 +169,10 @@ const admin = {
   }) {
     await pool.query("begin");
     try {
+      console.log(aprovado);
       if (aprovado == false) {
         if (idusuario != null && idcarro == null) {
+          console.log("Entrou Usuario");
           const user = await pool.query(
             "select email from usuario where idusuario = $1",
             [idusuario]
@@ -183,6 +185,7 @@ const admin = {
           return;
         }
         if (idusuario != null && idcarro != null) {
+          console.log("Entrou Carro");
           const user = await pool.query(
             "select email from usuario where idusuario = $1",
             [idusuario]
@@ -195,12 +198,13 @@ const admin = {
           return;
         }
         if (idoficina != null) {
+          console.log("Entrou oficina");
           const workspace = await pool.query(
             "select email from oficina where idoficina = $1",
             [idoficina]
           );
           await pool.query(
-            "update oficina set statusdocument = 1  where idoficina = $1 ",
+            "update oficina set statusdocument = 2  where idoficina = $1 ",
             [idoficina]
           );
           sendEmail(
