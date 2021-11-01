@@ -10,8 +10,8 @@ const service = {
     idoficina,
     status,
     descricao,
-    nomeCliente,
-    contatoCliente,
+    nomecliente,
+    contatocliente,
     modelo,
     marca,
     placa,
@@ -34,9 +34,9 @@ const service = {
       }
       const iduserworkspace = await this.newWorkspaceUser(
         idoficina,
-        nomeCliente,
+        nomecliente,
         email,
-        contatoCliente
+        contatocliente
       );
       const idcaruserworkspace = await this.newCarUserWorkSpace(
         iduserworkspace,
@@ -67,10 +67,16 @@ const service = {
         );
       }
       for (const element of maoobra) {
-        const { responsavel, valor, qnthoras = null } = element;
+        const { responsavel, valor, qnthoras = null, descricao } = element;
         await pool.query(
-          "insert into maodeobra (responsavel,valor,qnthoras,idordemdeservico) values($1,$2,$3,$4)",
-          [responsavel, valor, qnthoras, idOS.rows[0].idordemdeservico]
+          "insert into maodeobra (responsavel,valor,qnthoras,idordemdeservico,descricao) values($1,$2,$3,$4,$5)",
+          [
+            responsavel,
+            valor,
+            qnthoras,
+            idOS.rows[0].idordemdeservico,
+            descricao,
+          ]
         );
       }
       await pool.query("commit");
@@ -81,14 +87,14 @@ const service = {
       return false;
     }
   },
-  async newWorkspaceUser(idoficina, nomeCliente, email, contatoCliente) {
+  async newWorkspaceUser(idoficina, nomecliente, email, contatocliente) {
     await pool.query(
       "insert into usuariooficina (nome,email,contatousuario,idoficina) values($1,$2,$3,$4)",
-      [nomeCliente, email, contatoCliente, idoficina]
+      [nomecliente, email, contatocliente, idoficina]
     );
     const userWorkspace = await pool.query(
       "select idusuariooficina from usuariooficina where nome = $1",
-      [nomeCliente]
+      [nomecliente]
     );
     console.log(userWorkspace.rows[0]);
     return userWorkspace.rows[0].idusuariooficina;
@@ -145,11 +151,11 @@ const service = {
       "case when u.nome is null " +
       "          then u2.nome " +
       "          else u.nome " +
-      "          end as nome," +
+      "          end as nomecliente," +
       "case when t.telefonecompleto is null" +
       "          then u2.contatousuario " +
       "          else t.telefonecompleto " +
-      "          end as contatoCliente ," +
+      "          end as contatoclinte ," +
       "case when u.email is null " +
       "          then u2.email " +
       "          else u.email " +
@@ -189,7 +195,7 @@ const service = {
     const result = await pool.query(query, [idordemdeservico]);
     return result.rows;
   },
-  async UpdateService({ pecas, maoobra, idordemdeservico }) {
+  async UpdateService({ pecas, maoobra, idordemdeservico, status, descricao }) {
     try {
       await pool.query("begin");
       console.log(pecas);
@@ -197,7 +203,7 @@ const service = {
         const queryP =
           "update pecas set valorunitario = $1, nome = $2 where idpeca =$3";
         const queryD =
-          "update descricaoservico set quantidade = $1,valor = $2 where idpeca = $3";
+          "update descricaoservico set quantidade = $1,valor = $2,descricao = $3 where idpeca = $4";
         for (const element of pecas) {
           const { nome, valorunitario, quantidade, idpeca } = element;
           console.log(element);
@@ -209,15 +215,32 @@ const service = {
           ]);
         }
       }
+      if (status != null) {
+        const query =
+          "update ordemdeservico set status = $1 where idordemdeservico = $2";
+        await pool.query(query, [status, idordemdeservico]);
+      }
+      if (descricao != null) {
+        const query =
+          "update ordemdeservico set descricao = $1 where idordemdeservico = $2";
+        await pool.query(query, [descricao, idordemdeservico]);
+      }
       if (maoobra != null || maoobra != undefined) {
         const query =
-          "update maodeobra set valor = $1, responsavel = $2, qnthoras = $3 where idmaodeobra = $4 and idordemdeservico = $5";
+          "update maodeobra set valor = $1, responsavel = $2, qnthoras = $3, descricao = $4 where idmaodeobra = $5 and idordemdeservico = $6";
         for (const element of maoobra) {
-          const { responsavel, valor, qnthoras = null, idmaodeobra } = element;
+          const {
+            responsavel,
+            valor,
+            qnthoras = null,
+            idmaodeobra,
+            descricao,
+          } = element;
           await pool.query(query, [
             valor,
             responsavel,
             qnthoras,
+            descricao,
             idmaodeobra,
             idordemdeservico,
           ]);
