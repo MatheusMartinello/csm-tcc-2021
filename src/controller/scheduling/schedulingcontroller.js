@@ -49,7 +49,7 @@ const scheduling = {
   async getscheduling({ idoficina }) {
     try {
       const result = await pool.query(
-        "SELECT * FROM agenda where a.idoficina = $1",
+        "SELECT * FROM agenda a where a.idoficina = $1",
         [idoficina]
       );
       return result.rows[0];
