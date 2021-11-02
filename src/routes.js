@@ -44,6 +44,7 @@ routes.post("/user/register", async (req, res) => {
     return res.send({
       message: "Usuário cadastrado com sucesso!",
       success: "true",
+      token: await user.authUser(req.body),
     });
   } catch (err) {
     return res.status(400).send({ message: err, success: "false" });
@@ -212,6 +213,7 @@ routes.post("/workspace/register", async (req, res) => {
     return res.send({
       massage: "Oficina cadastrada com sucesso!",
       success: "true",
+      token: await workspace.authUser(req.body),
     });
   } catch (error) {
     return res.status(400).send({

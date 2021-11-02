@@ -204,15 +204,30 @@ const service = {
           "update pecas set valorunitario = $1, nome = $2 where idpeca =$3";
         const queryD =
           "update descricaoservico set quantidade = $1,valor = $2 where idpeca = $3";
+        const queryAddPeca =
+          "insert into pecas (nome,valorunitario) values ($1,$2) references *"; // adicionar peças sem idpeça
         for (const element of pecas) {
-          const { nome, valorunitario, quantidade, idpeca } = element;
+          const { nome, valorunitario, quantidade, idpeca = null } = element;
           console.log(element);
-          await pool.query(queryP, [valorunitario, nome, idpeca]);
-          await pool.query(queryD, [
-            quantidade,
-            valorunitario * quantidade,
-            idpeca,
-          ]);
+          if (idpeca == null) {
+            const peca = await pool.query(queryAddPeca, [nome, valorunitario]);
+            await pool.query(
+              "insert into descricaoservico (idordemdeservico,idpeca,quantidade, valor) values($1,$2,$3,$4)",
+              [
+                idordemdeservico,
+                peca.rows[0].idpeca,
+                quantidade,
+                valorunitario * quantidade,
+              ]
+            );
+          } else {
+            await pool.query(queryP, [valorunitario, nome, idpeca]);
+            await pool.query(queryD, [
+              quantidade,
+              valorunitario * quantidade,
+              idpeca,
+            ]);
+          }
         }
       }
       if (status != null) {
@@ -225,7 +240,7 @@ const service = {
           "update ordemdeservico set descricao = $1 where idordemdeservico = $2";
         await pool.query(query, [descricao, idordemdeservico]);
       }
-      if (maoobra != null || maoobra != undefined) {
+      if (maoobra != null) {
         const query =
           "update maodeobra set valor = $1, responsavel = $2, qnthoras = $3, descricao = $4 where idmaodeobra = $5 and idordemdeservico = $6";
         for (const element of maoobra) {
@@ -233,17 +248,24 @@ const service = {
             responsavel,
             valor,
             qnthoras = null,
-            idmaodeobra,
+            idmaodeobra = null,
             descricao,
           } = element;
-          await pool.query(query, [
-            valor,
-            responsavel,
-            qnthoras,
-            descricao,
-            idmaodeobra,
-            idordemdeservico,
-          ]);
+          if (idmaodeobra == null) {
+            await pool.query(
+              "insert into maodeobra (responsavel,valor,qnthoras,idordemdeservico,descricao) values($1,$2,$3,$4,$5)",
+              [responsavel, valor, qnthoras, idordemdeservico, descricao]
+            );
+          } else {
+            await pool.query(query, [
+              valor,
+              responsavel,
+              qnthoras,
+              descricao,
+              idmaodeobra,
+              idordemdeservico,
+            ]);
+          }
         }
       }
       return true;
