@@ -205,7 +205,7 @@ const service = {
         const queryD =
           "update descricaoservico set quantidade = $1,valor = $2 where idpeca = $3";
         const queryAddPeca =
-          "insert into pecas (nome,valorunitario) values ($1,$2) references *"; // adicionar peças sem idpeça
+          "insert into pecas (nome,valorunitario) values ($1,$2) returning *"; // adicionar peças sem idpeça
         for (const element of pecas) {
           const { nome, valorunitario, quantidade, idpeca = null } = element;
           console.log(element);
