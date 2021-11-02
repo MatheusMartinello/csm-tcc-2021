@@ -203,7 +203,7 @@ const service = {
         const queryP =
           "update pecas set valorunitario = $1, nome = $2 where idpeca =$3";
         const queryD =
-          "update descricaoservico set quantidade = $1,valor = $2,descricao = $3 where idpeca = $4";
+          "update descricaoservico set quantidade = $1,valor = $2 where idpeca = $3";
         for (const element of pecas) {
           const { nome, valorunitario, quantidade, idpeca } = element;
           console.log(element);
