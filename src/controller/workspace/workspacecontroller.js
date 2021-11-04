@@ -37,7 +37,16 @@ const workspace = {
           new Date(),
           inscricaoEstadual,
         ]
-      );
+        );
+        
+        const token = jwt.sign(
+            { id: idworkspace.rows[0].idoficina },
+            authConfig.secret,
+            {
+                expiresIn: 86400,
+            }
+        );
+
 
       if (idworkspace.rows[0].idoficina === null)
         throw "Não foi possivel criar a oficina";
@@ -57,7 +66,7 @@ const workspace = {
         ]
       );
       await pool.query("end");
-      return true;
+      return { token, idoficina: idworkspace.rows[0].idoficina };
     } catch (error) {
       await pool.query("rollback");
       console.error(error);

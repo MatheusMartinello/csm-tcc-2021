@@ -18,16 +18,22 @@ const user = {
   }) {
     try {
       password = await bcrypt.hash(password, 10);
-      await pool.query(
-        "insert into usuario (nome,email,cpf,rg,datanascimento,login,senha,statusdocument) values($1,$2,$3,$4,$5,$6,$7,3)",
+      const result = await pool.query(
+        "insert into usuario (nome,email,cpf,rg,datanascimento,login,senha,statusdocument) values($1,$2,$3,$4,$5,$6,$7,3) RETURNING idusuario",
         [name, email, cpf, rg, bornDate, login, password]
       );
 
-      const result = await pool.query(
-        "SELECT IdUsuario FROM usuario where Login = $1",
-        [login]
+      if (result.rows[0] == null) return "error";
+
+      const token = jwt.sign(
+        { id: result.rows[0].idusuario },
+        authConfig.secret,
+        {
+          expiresIn: 86400,
+        }
       );
-      const _idUser = result.rows[0].IdUsuario;
+
+      return { idusuario: result.rows[0].idusuario, token };
       //const getEnderecoInfo = returnLatLon(endereco);
       //await pool.query("INSERT INTO ENDERECO(");
     } catch (error) {
@@ -38,7 +44,7 @@ const user = {
   async authUser({ login }) {
     try {
       const getuser = await pool.query(
-        "select idusuario from usuario where login = $1",
+        "select idusuario from usuario where login = $1 and statusdocument = 1",
         [login]
       );
       console.log(getuser.rows[0]);
@@ -58,9 +64,14 @@ const user = {
   },
   async registerCar({ idusuario, placa, modelo, marca, renavam }) {
     try {
-      const result = await pool.query(
-        "INSERT INTO carro(idusuario,placa,modelo,marca,renavam) values ($1,$2,$3,$4,$5) returning *",
+      await pool.query(
+        "INSERT INTO carro(idusuario,placa,modelo,marca,renavam) values ($1,$2,$3,$4,$5)",
         [idusuario, placa, modelo, marca, renavam]
+      );
+
+      const result = await pool.query(
+        "SELECT idcarro FROM carro where idusuario = $1 and modelo = $2",
+        [idusuario, modelo]
       );
 
       return result.rows[0].idcarro;
@@ -71,7 +82,7 @@ const user = {
   async getUsersCars({ idusuario }) {
     try {
       const result = await pool.query(
-        "SELECT idcarro,placa,modelo,marca from carro where IdUsuario = $1 and Ativo = true",
+        "SELECT idcarro,placa,modelo,marca from carro where IdUsuario = $1",
         [idusuario]
       );
       console.log(result.rows);
@@ -129,8 +140,12 @@ const user = {
   async createCarDoc({ idusuario, idcarro }, url) {
     try {
       await pool.query(
-        "INSERT INTO dadosimagem(urldocumento,tipodocumento,idcarro,idusuario,statusdocument) values($1,$2,$3,$4,$5)",
-        [url, 3, idcarro, idusuario, 3]
+        "INSERT INTO dadosimagem(urldocumento,tipodocumento,idcarro,idusuario) values($1,$2,$3,$4)",
+        [url, 3, idcarro, idusuario]
+      );
+      await pool.query(
+        "UPDATE carro SET statusdocument = 3 WHERE idcarro = $1",
+        [idcarro]
       );
       return;
     } catch (error) {
@@ -145,16 +160,6 @@ const user = {
       );
       return true;
     } catch (error) {
-      throw error;
-    }
-  },
-  async delecteCar({ idcarro }) {
-    try {
-      await pool.query("update carro set Ativo = false where idcarro = $1", [
-        idcarro,
-      ]);
-    } catch (error) {
-      console.log(error);
       throw error;
     }
   },

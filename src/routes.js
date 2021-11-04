@@ -40,11 +40,12 @@ routes.post("/user/register", async (req, res) => {
       success: "false",
     });
   try {
-    await user.createUser(req.body);
-    return res.send({
+    const { idusuario, token } = await user.createUser(req.body);
+    return res.json({
       message: "Usuário cadastrado com sucesso!",
       success: "true",
-      token: await user.authUser(req.body),
+      token,
+      idusuario,
     });
   } catch (err) {
     return res.status(400).send({ message: err, success: "false" });
@@ -65,7 +66,7 @@ routes.post("/user/authenticate", async (req, res) => {
   try {
     const { login, password } = req.body;
     const getUser = await pool.query(
-      "select login,senha,idusuario,nome,statusdocument from usuario where login = $1",
+      "select login,senha,idusuario,nome from usuario where login = $1 and documentstatus = 1",
       [login]
     );
     if (
@@ -75,7 +76,6 @@ routes.post("/user/authenticate", async (req, res) => {
       return res.status(400).send({ error: "Login ou senha Inválidos!" });
     const token = await user.authUser(req.body);
     if (token == "error") throw "Algo deu de errado na autenticação";
-    if (getUser.rows[0].statusdocument == 3) throw "Usuário ainda em analise";
     return res.send({
       message: "Login logado com sucesso",
       token: token,
@@ -221,11 +221,13 @@ routes.post("/workspace/register", async (req, res) => {
       success: "false",
     });
   try {
-    await workspace.Register(req.body);
-    return res.send({
+    const { idoficina, token } = await workspace.Register(req.body);
+
+    return res.json({
       massage: "Oficina cadastrada com sucesso!",
       success: "true",
-      token: await workspace.authUser(req.body),
+      token,
+      idoficina,
     });
   } catch (error) {
     return res.status(400).send({
