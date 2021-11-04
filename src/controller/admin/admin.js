@@ -75,7 +75,7 @@ const admin = {
       );
 
       const carResultPendent = await pool.query(
-        "select count(*) from carro where statusdocument = 3"
+        "select count(c.*) from carro c left join usuario u on u.idusuario = c.idusaurio where c.statusdocument = 3 and u.statusdocument = 1"
       );
 
       const userPendent = await pool.query(
@@ -131,7 +131,7 @@ const admin = {
   async GetAllCarsToApprove() {
     try {
       const result = await pool.query(
-        "select c.*, u.login from carro c left join usuario u on u.idusuario = c.idusuario where (u.statusdocument = 1) and (c.statusdocument = 3  or u.statusdocument = 2)"
+        "select c.*, u.login from carro c left join usuario u on u.idusuario = c.idusuario where (u.statusdocument = 1) and (c.statusdocument = 3  or c.statusdocument = 2)"
       );
       return result.rows;
     } catch (error) {

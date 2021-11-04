@@ -65,15 +65,22 @@ routes.post(
 routes.post("/user/authenticate", async (req, res) => {
   try {
     const { login, password } = req.body;
+    console.log("procurou ");
     const getUser = await pool.query(
-      "select login,senha,idusuario,nome from usuario where login = $1 and documentstatus = 1",
+      "select login,senha,idusuario,nome from usuario where login = $1 and statusdocument = 1",
       [login]
     );
+    console.log(getUser.rows[0]);
+    console.log(password);
+    const bcr = await bcrypt.compare(password, getUser.rows[0].senha);
+    console.log(bcr);
     if (
       !getUser.rows[0] ||
       !(await bcrypt.compare(password, getUser.rows[0].senha))
-    )
+    ) {
+      console.log("Entrou no if :(");
       return res.status(400).send({ error: "Login ou senha Inválidos!" });
+    }
     const token = await user.authUser(req.body);
     if (token == "error") throw "Algo deu de errado na autenticação";
     return res.send({

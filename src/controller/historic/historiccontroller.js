@@ -2,7 +2,7 @@ const pool = require("../../database/db");
 const historic = {
   async GetListHistoric({ placa }) {
     const query =
-      "select o.idordemdeservico, o.descricao, c.idcarro ,c.modelo, c.placa, c.marca, o.car_km from ordemdeservico o " +
+      "select o.idordemdeservico, o.descricao, c.idcarro ,c.modelo, c.placa, c.marca, o.car_km,o.createat from ordemdeservico o " +
       "left join descricaoservico d on d.idordemdeservico = o.idordemdeservico " +
       "left join carro c on c.idcarro = o.idcarro " +
       `where c.placa like $1 ` +

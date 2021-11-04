@@ -268,6 +268,7 @@ const service = {
           }
         }
       }
+      await pool.query("end");
       return true;
     } catch (error) {
       console.log(error);

@@ -43,9 +43,10 @@ const user = {
   },
   async authUser({ login }) {
     try {
+      console.log("entrou");
       const getuser = await pool.query(
         "select idusuario from usuario where login = $1 and statusdocument = 1",
-        [login]
+        [`${login}`]
       );
       console.log(getuser.rows[0]);
       if (getuser.rows[0] == null) return "error";
