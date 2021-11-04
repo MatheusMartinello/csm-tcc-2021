@@ -131,7 +131,7 @@ const admin = {
   async GetAllCarsToApprove() {
     try {
       const result = await pool.query(
-        "select c.*, u.login from carro c left join usuario u on u.idusuario = c.idusuario where (u.statusdocument = 3 or u.statusdocument = 2) and c.statusdocument = 3 "
+        "select c.*, u.login from carro c left join usuario u on u.idusuario = c.idusuario where (u.statusdocument = 1) and (c.statusdocument = 3  or u.statusdocument = 2)"
       );
       return result.rows;
     } catch (error) {
@@ -181,7 +181,7 @@ const admin = {
             "update usuario set statusdocument = 2 where IdUsuario = $1",
             [idusuario]
           );
-          sendEmail(user.rows[0].email, mensagemEmail, "Reporvado!");
+          sendEmail(user.rows[0].email, mensagemEmail, "Reprovado!");
           return;
         }
         if (idusuario != null && idcarro != null) {

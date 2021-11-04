@@ -58,14 +58,9 @@ const user = {
   },
   async registerCar({ idusuario, placa, modelo, marca, renavam }) {
     try {
-      await pool.query(
-        "INSERT INTO carro(idusuario,placa,modelo,marca,renavam) values ($1,$2,$3,$4,$5)",
-        [idusuario, placa, modelo, marca, renavam]
-      );
-
       const result = await pool.query(
-        "SELECT idcarro FROM carro where idusuario = $1 and modelo = $2",
-        [idusuario, modelo]
+        "INSERT INTO carro(idusuario,placa,modelo,marca,renavam) values ($1,$2,$3,$4,$5) returning *",
+        [idusuario, placa, modelo, marca, renavam]
       );
 
       return result.rows[0].idcarro;
@@ -76,7 +71,7 @@ const user = {
   async getUsersCars({ idusuario }) {
     try {
       const result = await pool.query(
-        "SELECT idcarro,placa,modelo,marca from carro where IdUsuario = $1",
+        "SELECT idcarro,placa,modelo,marca from carro where IdUsuario = $1 and Ativo = true",
         [idusuario]
       );
       console.log(result.rows);
@@ -150,6 +145,16 @@ const user = {
       );
       return true;
     } catch (error) {
+      throw error;
+    }
+  },
+  async delecteCar({ idcarro }) {
+    try {
+      await pool.query("update carro set Ativo = false where idcarro = $1", [
+        idcarro,
+      ]);
+    } catch (error) {
+      console.log(error);
       throw error;
     }
   },

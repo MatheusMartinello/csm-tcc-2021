@@ -65,7 +65,7 @@ routes.post("/user/authenticate", async (req, res) => {
   try {
     const { login, password } = req.body;
     const getUser = await pool.query(
-      "select login,senha,idusuario,nome from usuario where login = $1",
+      "select login,senha,idusuario,nome,statusdocument from usuario where login = $1",
       [login]
     );
     if (
@@ -75,6 +75,7 @@ routes.post("/user/authenticate", async (req, res) => {
       return res.status(400).send({ error: "Login ou senha Inválidos!" });
     const token = await user.authUser(req.body);
     if (token == "error") throw "Algo deu de errado na autenticação";
+    if (getUser.rows[0].statusdocument == 3) throw "Usuário ainda em analise";
     return res.send({
       message: "Login logado com sucesso",
       token: token,
@@ -160,6 +161,18 @@ routes.post("/user/scheduling", auth.validadeToken, async (req, res) => {
     res.status(403).send({ success: false, message: error });
   }
 });
+routes.delete(
+  "/user/car/delete/:idcarro",
+  auth.validadeToken,
+  async (req, res) => {
+    try {
+      await user.delecteCar(req.params);
+      return res.send({ success: true, message: "Carro removido com sucesso" });
+    } catch (err) {
+      return res.status(403).send({ success: false, message: error });
+    }
+  }
+);
 routes.get(
   "/user/historic/placa/:placa",
   auth.validadeToken,
@@ -208,8 +221,7 @@ routes.post("/workspace/register", async (req, res) => {
       success: "false",
     });
   try {
-    const result = await workspace.Register(req.body);
-
+    await workspace.Register(req.body);
     return res.send({
       massage: "Oficina cadastrada com sucesso!",
       success: "true",
