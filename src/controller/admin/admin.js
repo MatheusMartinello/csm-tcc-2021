@@ -182,6 +182,7 @@ const admin = {
             [idusuario]
           );
           sendEmail(user.rows[0].email, mensagemEmail, "Reprovado!");
+          await pool.query("end");
           return;
         }
         if (idusuario != null && idcarro != null) {
@@ -195,6 +196,7 @@ const admin = {
             [idusuario, idcarro]
           );
           sendEmail(user.rows[0].email, mensagemEmail, "Carro reporvado!");
+          await pool.query("end");
           return;
         }
         if (idoficina != null) {
@@ -212,6 +214,7 @@ const admin = {
             mensagemEmail,
             "Oficina Reprovada!"
           );
+          await pool.query("end");
           return;
         }
       }
@@ -240,7 +243,7 @@ const admin = {
           "SELECT email from usuario where idusuario = $1",
           [idusuario]
         );
-        sendEail(user.rows[0].email, mensagemEmail, "Aprovado?");
+        sendEmail(user.rows[0].email, mensagemEmail, "Aprovado?");
         await pool.query("end");
         return;
       }
@@ -259,6 +262,7 @@ const admin = {
         await pool.query("end");
         return;
       }
+      await pool.query("rollback");
       throw "Chegou aqui é pq deu ruim";
     } catch (error) {
       await pool.query("rollback");
