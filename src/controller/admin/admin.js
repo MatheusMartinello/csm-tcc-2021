@@ -75,7 +75,7 @@ const admin = {
       );
 
       const carResultPendent = await pool.query(
-        "select count(c.*) from carro c left join usuario u on u.idusuario = c.idusaurio where c.statusdocument = 3 and u.statusdocument = 1"
+        "select count(c.*) from carro c left join usuario u on u.idusuario = c.idusuario where c.statusdocument = 3 and u.statusdocument = 1"
       );
 
       const userPendent = await pool.query(
@@ -243,7 +243,7 @@ const admin = {
           "SELECT email from usuario where idusuario = $1",
           [idusuario]
         );
-        sendEmail(user.rows[0].email, mensagemEmail, "Aprovado?");
+        sendEmail(user.rows[0].email, mensagemEmail, "Veiculo aprovado?");
         await pool.query("end");
         return;
       }
@@ -258,7 +258,7 @@ const admin = {
         );
         console.log(user.rows);
 
-        sendEmail(user.rows[0].email, mensagemEmail, "Aprovado?");
+        sendEmail(user.rows[0].email, mensagemEmail, "Oficina aprovado?");
         await pool.query("end");
         return;
       }
