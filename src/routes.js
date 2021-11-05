@@ -12,6 +12,7 @@ const { transporter } = require("./controller/email/email");
 const scheduling = require("./controller/scheduling/schedulingcontroller");
 const service = require("./controller/service/servicecontroller");
 const historic = require("./controller/historic/historiccontroller");
+const { query } = require("express");
 routes.get("/", async (req, res) => {
   try {
     res.json({ message: "Conexão está OK!" });
@@ -70,10 +71,6 @@ routes.post("/user/authenticate", async (req, res) => {
       "select login,senha,idusuario,nome from usuario where login = $1 and statusdocument = 1",
       [login]
     );
-    console.log(getUser.rows[0]);
-    console.log(password);
-    const bcr = await bcrypt.compare(password, getUser.rows[0].senha);
-    console.log(bcr);
     if (
       !getUser.rows[0] ||
       !(await bcrypt.compare(password, getUser.rows[0].senha))
@@ -90,6 +87,7 @@ routes.post("/user/authenticate", async (req, res) => {
       nome: getUser.rows[0].nome,
     });
   } catch (error) {
+      debugger;
     return res.status(400).send({ error: error });
   }
 });
@@ -173,9 +171,13 @@ routes.delete(
   auth.validadeToken,
   async (req, res) => {
     try {
-      await user.delecteCar(req.params);
-      return res.send({ success: true, message: "Carro removido com sucesso" });
-    } catch (err) {
+        const result = await pool.query('DELETE FROM carro WHERE idcarro = $1', [req.params.idcarro]);
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: 'Carro não encontrado.' });
+        }
+      return res.json({ success: true, message: "Carro removido com sucesso" });
+    } catch (error) {
+        console.log(error);
       return res.status(403).send({ success: false, message: error });
     }
   }
