@@ -66,7 +66,6 @@ routes.post(
 routes.post("/user/authenticate", async (req, res) => {
   try {
     const { login, password } = req.body;
-    console.log("procurou ");
     const getUser = await pool.query(
       "select login,senha,idusuario,nome from usuario where login = $1 and statusdocument = 1",
       [login]
@@ -75,7 +74,6 @@ routes.post("/user/authenticate", async (req, res) => {
       !getUser.rows[0] ||
       !(await bcrypt.compare(password, getUser.rows[0].senha))
     ) {
-      console.log("Entrou no if :(");
       return res.status(400).send({ error: "Login ou senha Inválidos!" });
     }
     const token = await user.authUser(req.body);
@@ -87,7 +85,7 @@ routes.post("/user/authenticate", async (req, res) => {
       nome: getUser.rows[0].nome,
     });
   } catch (error) {
-      debugger;
+    console.log(error);
     return res.status(400).send({ error: error });
   }
 });
@@ -171,13 +169,16 @@ routes.delete(
   auth.validadeToken,
   async (req, res) => {
     try {
-        const result = await pool.query('DELETE FROM carro WHERE idcarro = $1', [req.params.idcarro]);
-        if (result.rowCount === 0) {
-            return res.status(404).json({ message: 'Carro não encontrado.' });
-        }
+      const result = await pool.query(
+        "update set idusuario = null WHERE idcarro = $1",
+        [req.params.idcarro]
+      );
+      if (result.rowCount === 0) {
+        return res.status(404).json({ message: "Carro não encontrado." });
+      }
       return res.json({ success: true, message: "Carro removido com sucesso" });
     } catch (error) {
-        console.log(error);
+      console.log(error);
       return res.status(403).send({ success: false, message: error });
     }
   }
@@ -202,6 +203,24 @@ routes.get("/workspace/placa/:placa", auth.validadeToken, async (req, res) => {
   const result = await historic.GetListHistoric(req.params);
   res.send({ success: true, historic: result });
 });
+routes.get(
+  "/workspace/placa/anonymous/:placa",
+  auth.validadeToken,
+  async (req, res) => {
+    const result = await historic.getAnonymousList(req.params);
+    res.send({ success: true, historic: result });
+  }
+);
+
+routes.get(
+  "/workspace/service/placa/anonymous/:idordemservico",
+  auth.validadeToken,
+  async (req, res) => {
+    const result = await historic.GetServiceRestricted(req.params);
+    res.send({ success: true, historic: result });
+  }
+);
+
 routes.get(
   "/workspace/agenda/:idoficina",
   auth.validadeToken,

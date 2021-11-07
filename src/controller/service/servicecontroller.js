@@ -195,7 +195,14 @@ const service = {
     const result = await pool.query(query, [idordemdeservico]);
     return result.rows;
   },
-  async UpdateService({ pecas, maoobra, idordemdeservico, status, descricao }) {
+  async UpdateService({
+    pecas,
+    maoobra,
+    idordemdeservico,
+    status,
+    descricao,
+    car_km,
+  }) {
     try {
       await pool.query("begin");
       console.log(pecas);
@@ -232,8 +239,8 @@ const service = {
       }
       if (status != null) {
         const query =
-          "update ordemdeservico set status = $1 where idordemdeservico = $2";
-        await pool.query(query, [status, idordemdeservico]);
+          "update ordemdeservico set status = $1, car_km= $2 where idordemdeservico = $3";
+        await pool.query(query, [status, car_km, idordemdeservico]);
       }
       if (descricao != null) {
         const query =
