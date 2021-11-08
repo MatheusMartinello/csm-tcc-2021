@@ -132,6 +132,7 @@ const service = {
       "order by createat, o.idordemdeservico desc";
     try {
       const result = await pool.query(query, [idoficina]);
+      console.log(result.rows[0].createat);
       return result.rows;
     } catch (error) {
       console.error(error);

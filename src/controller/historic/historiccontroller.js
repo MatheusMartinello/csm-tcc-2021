@@ -8,7 +8,7 @@ const historic = {
       `where c.placa like $1 ` +
       "group by o.idordemdeservico, c.idcarro ";
     const result = await pool.query(query, [`%${placa.toUpperCase()}%`]);
-
+    console.log(result.rows[0].createat);
     return result.rows;
   },
   async GetListHistoricForUsers({ placa }) {

@@ -268,7 +268,7 @@ routes.post("/workspace/authenticate", async (req, res) => {
   try {
     const { login, password } = req.body;
     const getUser = await pool.query(
-      "select login,senha,idoficina from oficina where login = $1",
+      "select login,senha,idoficina from oficina where login = $1 and statusdocument = 1",
       [login]
     );
 
