@@ -170,7 +170,7 @@ routes.delete(
   async (req, res) => {
     try {
       const result = await pool.query(
-        "update set idusuario = null WHERE idcarro = $1",
+        "update carro set idusuario = null WHERE idcarro = $1",
         [req.params.idcarro]
       );
       if (result.rowCount === 0) {
