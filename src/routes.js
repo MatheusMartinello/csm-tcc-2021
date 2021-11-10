@@ -268,10 +268,15 @@ routes.post("/workspace/authenticate", async (req, res) => {
   try {
     const { login, password } = req.body;
     const getUser = await pool.query(
-      "select login,senha,idoficina from oficina where login = $1 and statusdocument = 1",
+      "select login,senha,idoficina,statusdocument from oficina where login = $1 ",
       [login]
     );
-
+    if (getUser.rows[0]) {
+      if (getUser.rows[0].statusdocument != 1)
+        return res
+          .status(500)
+          .send({ success: false, message: "Login pendente" });
+    }
     if (
       !getUser.rows[0] ||
       !(await bcrypt.compare(password, getUser.rows[0].senha))

@@ -67,7 +67,7 @@ const user = {
     try {
       await pool.query(
         "INSERT INTO carro(idusuario,placa,modelo,marca,renavam) values ($1,$2,$3,$4,$5)",
-        [idusuario, placa, modelo, marca, renavam]
+        [idusuario, placa.toUpperCase(), modelo, marca, renavam]
       );
 
       const result = await pool.query(
@@ -77,6 +77,7 @@ const user = {
 
       return result.rows[0].idcarro;
     } catch (error) {
+      console.log(error);
       throw ("Não foi possível criar veiculo.", error);
     }
   },
@@ -131,7 +132,8 @@ const user = {
       [idusuario]
     );
     if (checkUser.rows.length < 1) throw "Usuário não encontrado";
-
+    placa = placa.ToUpperCase();
+    console.log(placa);
     await pool.query(
       "INSERT INTO Carro(modelo,marca,renavam,placa,idusuario,statusdocument) values ($1,$2,$3,$4,$5)",
       [modelo, marca, cor, renavam, placa.ToUpperCase(), idusuario, 3]

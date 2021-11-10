@@ -36,7 +36,7 @@ const scheduling = {
       );
       await pool.query(
         "INSERT INTO ordemdeservico (idoficina,idcarro,idusuario,status) values($1,$2,$3,$4) returning *",
-        [idoficina, idcarro, idusuario, "Em Aberto"]
+        [idoficina, idcarro, idusuario, "Pendente"]
       );
       await pool.query("end");
       return true;
@@ -52,7 +52,7 @@ const scheduling = {
         "SELECT * FROM agenda a where a.idoficina = $1",
         [idoficina]
       );
-      return result.rows[0];
+      return result.rows;
     } catch (error) {
       console.error(error);
       throw error;
