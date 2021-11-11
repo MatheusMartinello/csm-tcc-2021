@@ -275,3 +275,14 @@ create table maodeobra(
 	constraint pk_maodeobra primary key (idmaodeobra),
 	constraint fk_ordemdeservico foreign key (idordemdeservico) references ordemdeservico(idordemdeservico)
 )
+
+
+create table estoque (
+	idestoque serial not null,
+	idoficina integer not null,
+	idpeca integer not null,
+	quantidade integer not null,
+  constraint pk_idestoque primary key(idestoque)
+	constraint fk_idoficina foreign key(idoficina) references oficina(idoficina),
+	constraint fk_idpeaca foreign key(idpeca) references pecas(idpeca)
+)

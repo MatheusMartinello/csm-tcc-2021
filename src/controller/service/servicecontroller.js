@@ -284,6 +284,41 @@ const service = {
       throw error;
     }
   },
+  async addPart({ idoficina, nome, quantidade, valor }) {
+    try {
+      await pool.query("begin");
+      console.log(nome);
+      console.log(valor);
+      const queryAddPart =
+        "insert into pecas (nome,valorunitario) values ($1,$2) returning * ";
+      const resultQuery = await pool.query(queryAddPart, [nome, valor]);
+      console.log("-___--_");
+      const queryAddStock =
+        "insert into estoque (idpeca,idoficina,quantidade) values ($1,$2,$3)";
+      await pool.query(queryAddStock, [
+        resultQuery.rows[0].idpeca,
+        idoficina,
+        quantidade,
+      ]);
+      await pool.query("end");
+
+      return;
+    } catch (error) {
+      console.log(error);
+      await pool.query("rollback");
+      throw error;
+    }
+  },
+  async getListStock({ idoficina }) {
+    const query =
+      "select p.*,o.idoficina,e.quantidade " +
+      "from estoque e " +
+      "left join pecas p on e.idpeca = p.idpeca " +
+      "left join oficina o on e.idoficina = o.idoficina " +
+      "where o.idoficina = $1";
+    const result = await pool.query(query, [idoficina]);
+    return result.rows;
+  },
 };
 
 module.exports = service;

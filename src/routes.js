@@ -341,6 +341,28 @@ routes.post(
     }
   }
 );
+routes.post("/workspace/add/part", auth.validadeToken, async (req, res) => {
+  try {
+    console.log(req.body);
+    const result = await service.addPart(req.body);
+    res.send({ success: true, message: "Peça adicionada com sucesso!" });
+  } catch (error) {
+    res.status(500).send({ success: false, message: error });
+  }
+});
+routes.get(
+  "/workspace/parts/list/:idoficina",
+  auth.validadeToken,
+  async (req, res) => {
+    try {
+      console.log(req.body);
+      const result = await service.getListStock(req.params);
+      res.send({ success: true, result });
+    } catch (error) {
+      res.status(500).send({ success: false, message: error });
+    }
+  }
+);
 routes.post("/workspace/new/service", auth.validadeToken, async (req, res) => {
   const serviceResult = await service.newServicePost(req.body);
   return res.send({
