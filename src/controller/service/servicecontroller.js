@@ -309,7 +309,7 @@ const service = {
       throw error;
     }
   },
-  async getListStock({ idoficina }) {
+  async getListStock({ idoficina, nome, quantidade, valor }) {
     const query =
       "select p.*,o.idoficina,e.quantidade " +
       "from estoque e " +
@@ -318,6 +318,35 @@ const service = {
       "where o.idoficina = $1";
     const result = await pool.query(query, [idoficina]);
     return result.rows;
+  },
+  async updatePart({ idoficina, nome, quantidade, valor, idpeca }) {
+    try {
+      const queryUpdatePecas =
+        "update pecas set nome = $1, valorunitario = $2 where idpeca = $3";
+      const queryUpdateStock =
+        "update estoque set quantidade = $1 where idoficina = $2 and idpeca = $3";
+      await pool.query("begin");
+      await pool.query(queryUpdatePecas, [nome, valor, idpeca]);
+      await pool.query(queryUpdateStock, [quantidade, idoficina, idpeca]);
+      await pool.query("end");
+    } catch (error) {
+      console.log(error);
+      await pool.query("rollback");
+      throw error;
+    }
+  },
+  async getPartsNew({ idoficina, idpeca }) {
+    const queryPecas =
+      "select p.*,o.idoficina,e.quantidade " +
+      " from estoque e " +
+      " left join pecas p on e.idpeca = p.idpeca " +
+      " left join oficina o on e.idoficina = o.idoficina " +
+      " where o.idoficina = $1 and p.idpeca = $2";
+    console.log(idoficina);
+    console.log(idpeca);
+    const result = await pool.query(queryPecas, [idoficina, idpeca]);
+
+    return result.rows[0];
   },
 };
 

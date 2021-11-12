@@ -341,9 +341,16 @@ routes.post(
     }
   }
 );
+routes.put("/workspace/part/update", auth.validadeToken, async (req, res) => {
+  try {
+    const result = await service.updatePart(req.body);
+    res.send({ success: true, message: "Peça atualizada com sucesso!" });
+  } catch (error) {
+    res.status(500).send({ success: false, message: error });
+  }
+});
 routes.post("/workspace/add/part", auth.validadeToken, async (req, res) => {
   try {
-    console.log(req.body);
     const result = await service.addPart(req.body);
     res.send({ success: true, message: "Peça adicionada com sucesso!" });
   } catch (error) {
@@ -363,8 +370,17 @@ routes.get(
     }
   }
 );
+routes.post("/workspace/parts/get", auth.validadeToken, async (req, res) => {
+  try {
+    const result = await service.getPartsNew(req.body);
+    res.send({ success: true, result });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ success: false, message: error });
+  }
+});
 routes.post("/workspace/new/service", auth.validadeToken, async (req, res) => {
-  const serviceResult = await service.newServicePost(req.body);
+  await service.newServicePost(req.body);
   return res.send({
     success: true,
     message: "Ordem de serviço cadastrada com sucesso.",
