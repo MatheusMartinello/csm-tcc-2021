@@ -49,7 +49,7 @@ const scheduling = {
   async getscheduling({ idoficina }) {
     try {
       const result = await pool.query(
-        "SELECT a.idagenda, a.idusuario, a.idcarro ,a.idoficina ,to_char(a.datahorario , 'DD/MM/YYYY') as datahorario, to_char(a.datahorafim, 'DD/MM/YYYY') as datahorafim FROM agenda a where a.idoficina = $1",
+        "SELECT a.idagenda, a.idusuario, a.idcarro ,a.idoficina ,to_char(a.datahorario , 'YYYY-MM-DD') as datahorario, to_char(a.datahorafim, 'DD/MM/YYYY') as datahorafim FROM agenda a where a.idoficina = $1",
         [idoficina]
       );
       return result.rows;
