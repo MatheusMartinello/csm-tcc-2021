@@ -127,7 +127,7 @@ const service = {
   },
   async getListServices({ idoficina }) {
     const query =
-      "select o.idordemdeservico, o.idoficina , o.idcarro , o.idusuario , o.idusuarioanonimo, o.status , to_char(o.createat, 'DD/MM/YYYY') as createat, o.status, o.descricao, o.car_km ,c.modelo,c.marca,c.placa, sum(coalesce (m.valor,0)) as maodeobra from ordemdeservico o inner join carro c on c.idcarro = o.idcarro left join maodeobra m on m.idordemdeservico = o.idordemdeservico where idoficina = $1 " +
+      "select o.idordemdeservico, o.idoficina , o.idcarro , o.idusuario , o.idusuarioanonimo, o.status , to_char(o.createat, 'DD/MM/YYYY') as createat, o.descricao, o.car_km ,c.modelo,c.marca,c.placa, sum(coalesce (m.valor,0)) as maodeobra from ordemdeservico o inner join carro c on c.idcarro = o.idcarro left join maodeobra m on m.idordemdeservico = o.idordemdeservico where idoficina = $1 " +
       "group by o.idordemdeservico,c.modelo,c.marca, c.placa " +
       "order by createat, o.idordemdeservico desc";
     try {
@@ -144,7 +144,7 @@ const service = {
     const mo = await this.getMO(idordemdeservico);
 
     const query =
-      "select o.*," +
+      "select o.idordemdeservico, o.idoficina , o.idcarro , o.idusuario , o.idusuarioanonimo, o.status , to_char(o.createat, 'DD/MM/YYYY') as createat, o.descricao, o.car_km ," +
       "c.modelo," +
       "c.marca," +
       "c.placa," +
