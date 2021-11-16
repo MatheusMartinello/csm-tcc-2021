@@ -51,19 +51,23 @@ const service = {
       );
 
       for (const element of pecas) {
-        const { nome, valor, qnt } = element;
-        const idpeca = await pool.query(
-          "insert into pecas (nome,valorunitario) values ($1,$2) returning *",
-          [nome, valor]
+        const { idpeca, qnt } = element;
+        const peca = await pool.query(
+          "Select * from pecas where idpeca = $1 ",
+          [idpeca]
         );
         await pool.query(
           "insert into descricaoservico (idordemdeservico,idpeca,quantidade, valor) values($1,$2,$3,$4)",
           [
             idOS.rows[0].idordemdeservico,
-            idpeca.rows[0].idpeca,
+            idpeca,
             qnt,
-            valor * qnt,
+            Number(peca.rows[0].valorunitario) * Number(qnt),
           ]
+        );
+        await pool.query(
+          "update estoque set quantidade = quantidade - $1 where idpeca = $2 and idoficina = $3",
+          [qnt, idpeca, idoficina]
         );
       }
       for (const element of maoobra) {
@@ -88,15 +92,11 @@ const service = {
     }
   },
   async newWorkspaceUser(idoficina, nomecliente, email, contatocliente) {
-    await pool.query(
-      "insert into usuariooficina (nome,email,contatousuario,idoficina) values($1,$2,$3,$4)",
+    const userWorkspace = await pool.query(
+      "insert into usuariooficina (nome,email,contatousuario,idoficina) values($1,$2,$3,$4) returning * ",
       [nomecliente, email, contatocliente, idoficina]
     );
-    const userWorkspace = await pool.query(
-      "select idusuariooficina from usuariooficina where nome = $1",
-      [nomecliente]
-    );
-    console.log(userWorkspace.rows[0]);
+
     return userWorkspace.rows[0].idusuariooficina;
   },
   async newCarUserWorkSpace(idusuariooficina, modelo, marca, cor, placa) {
@@ -203,6 +203,7 @@ const service = {
     status,
     descricao,
     car_km,
+    idoficina,
   }) {
     try {
       await pool.query("begin");
@@ -214,6 +215,8 @@ const service = {
           "update descricaoservico set quantidade = $1,valor = $2 where idpeca = $3";
         const queryAddPeca =
           "insert into pecas (nome,valorunitario) values ($1,$2) returning *"; // adicionar peças sem idpeça
+        const queryRemoveStock =
+          "update estoque set quantidade = quantidade - $1 where idoficina = $2 and idpeca = $3";
         for (const element of pecas) {
           const { nome, valorunitario, quantidade, idpeca = null } = element;
           console.log(element);
@@ -229,12 +232,13 @@ const service = {
               ]
             );
           } else {
-            await pool.query(queryP, [valorunitario, nome, idpeca]);
+            //await pool.query(queryP, [valorunitario, nome, idpeca]);
             await pool.query(queryD, [
               quantidade,
               valorunitario * quantidade,
               idpeca,
             ]);
+            await pool.query(queryRemoveStock, [quantidade, idoficina, idpeca]);
           }
         }
       }
@@ -292,7 +296,7 @@ const service = {
       const queryAddPart =
         "insert into pecas (nome,valorunitario) values ($1,$2) returning * ";
       const resultQuery = await pool.query(queryAddPart, [nome, valor]);
-      console.log("-___--_");
+
       const queryAddStock =
         "insert into estoque (idpeca,idoficina,quantidade) values ($1,$2,$3)";
       await pool.query(queryAddStock, [
