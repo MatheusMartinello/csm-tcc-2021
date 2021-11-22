@@ -256,6 +256,9 @@ const service = {
             valorTotal += valorunitario * quantidade;
             await pool.query(queryRemoveStock, [quantidade, idoficina, idpeca]);
           }
+          console.log("Valor total: " + valorTotal);
+          console.log("Peças:");
+          console.log(element);
         }
       }
       if (status != null) {
@@ -294,7 +297,11 @@ const service = {
               idordemdeservico,
             ]);
           }
+
           valorTotal += valor * qnthoras;
+          console.log("Valor total: " + valorTotal);
+          console.log("Mao obra:");
+          console.log(element);
         }
       }
       await pool.query(
