@@ -49,7 +49,7 @@ const service = {
         "insert into ordemdeservico (idoficina,idcarro,idusuarioanonimo,status,descricao,car_km) values($1,$2,$3,$4,$5,$6) returning *",
         [idoficina, idcaruserworkspace, iduserworkspace, status, descricao, km]
       );
-
+      let valorTotal = 0;
       for (const element of pecas) {
         const { idpeca, qnt } = element;
         const peca = await pool.query(
@@ -65,24 +65,30 @@ const service = {
             Number(peca.rows[0].valorunitario) * Number(qnt),
           ]
         );
+        valorTotal += Number(peca.rows[0].valorunitario) * Number(qnt);
         await pool.query(
           "update estoque set quantidade = quantidade - $1 where idpeca = $2 and idoficina = $3",
           [qnt, idpeca, idoficina]
         );
       }
       for (const element of maoobra) {
-        const { responsavel, valor, qnthoras = null, descricao } = element;
+        const { responsavel, valor, qnthoras = 1, descricao } = element;
         await pool.query(
           "insert into maodeobra (responsavel,valor,qnthoras,idordemdeservico,descricao) values($1,$2,$3,$4,$5)",
           [
             responsavel,
-            valor,
+            valor * qnthoras,
             qnthoras,
             idOS.rows[0].idordemdeservico,
             descricao,
           ]
         );
+        valorTotal += Number(valor) * qnthoras;
       }
+      await pool.query(
+        "update ordemdeservico set valortotal = $1 where idordemdeservico = $2 ",
+        [valorTotal, idOS.rows[0].idordemdeservico]
+      );
       await pool.query("commit");
       return true;
     } catch (error) {
@@ -127,7 +133,7 @@ const service = {
   },
   async getListServices({ idoficina }) {
     const query =
-      "select o.idordemdeservico, o.idoficina , o.idcarro , o.idusuario , o.idusuarioanonimo, o.status , to_char(o.createat, 'DD/MM/YYYY') as createat, o.descricao, o.car_km ,c.modelo,c.marca,c.placa, sum(coalesce (m.valor,0)) as maodeobra from ordemdeservico o inner join carro c on c.idcarro = o.idcarro left join maodeobra m on m.idordemdeservico = o.idordemdeservico where idoficina = $1 " +
+      "select o.idordemdeservico, o.idoficina , o.idcarro , o.idusuario , o.idusuarioanonimo, o.status , to_char(o.createat, 'DD/MM/YYYY') as createat, o.descricao, o.car_km ,c.modelo,c.marca,c.placa, coalesce(o.valortotal,0) as maodeobra from ordemdeservico o inner join carro c on c.idcarro = o.idcarro left join maodeobra m on m.idordemdeservico = o.idordemdeservico where idoficina = $1 " +
       "group by o.idordemdeservico,c.modelo,c.marca, c.placa " +
       "order by createat, o.idordemdeservico desc";
     try {
@@ -231,6 +237,7 @@ const service = {
                 valorunitario * quantidade,
               ]
             );
+            await pool.query(queryRemoveStock, [quantidade, idoficina, idpeca]);
           } else {
             //await pool.query(queryP, [valorunitario, nome, idpeca]);
             await pool.query(queryD, [
