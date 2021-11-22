@@ -66,6 +66,9 @@ const service = {
           ]
         );
         valorTotal += Number(peca.rows[0].valorunitario) * Number(qnt);
+        console.log("Peça!");
+        console.log(element);
+        console.log("Valor total: " + valorTotal);
         await pool.query(
           "update estoque set quantidade = quantidade - $1 where idpeca = $2 and idoficina = $3",
           [qnt, idpeca, idoficina]
@@ -84,7 +87,11 @@ const service = {
           ]
         );
         valorTotal += Number(valor) * qnthoras;
+        console.log("Mão obra");
+        console.log(element);
+        console.log("Valor total: " + valorTotal);
       }
+
       await pool.query(
         "update ordemdeservico set valortotal = $1 where idordemdeservico = $2 ",
         [valorTotal, idOS.rows[0].idordemdeservico]
