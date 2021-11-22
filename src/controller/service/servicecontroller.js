@@ -72,7 +72,7 @@ const service = {
         );
       }
       for (const element of maoobra) {
-        const { responsavel, valor, qnthoras = 1, descricao } = element;
+        const { responsavel, valor, qnthoras, descricao } = element;
         await pool.query(
           "insert into maodeobra (responsavel,valor,qnthoras,idordemdeservico,descricao) values($1,$2,$3,$4,$5)",
           [
