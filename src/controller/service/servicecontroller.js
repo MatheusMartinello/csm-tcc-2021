@@ -256,6 +256,21 @@ const service = {
             valorTotal += valorunitario * quantidade;
             await pool.query(queryRemoveStock, [quantidade, idoficina, idpeca]);
           }
+          const descOs = await pool.query(
+            "select idpeca from descricaoservico where idordemservico = $1",
+            [idordemdeservico]
+          );
+          if (!descOs.rows.some((item) => item === idpeca)) {
+            await pool.query(
+              "insert into descricaoservico (idordemdeservico,idpeca,quantidade, valor) values($1,$2,$3,$4)",
+              [
+                idordemdeservico,
+                peca.rows[0].idpeca,
+                quantidade,
+                valorunitario * quantidade,
+              ]
+            );
+          }
           console.log("Valor total: " + valorTotal);
           console.log("Peças:");
           console.log(element);
