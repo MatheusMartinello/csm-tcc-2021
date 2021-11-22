@@ -261,6 +261,7 @@ const service = {
             [idordemdeservico]
           );
           if (!descOs.rows.some((item) => item === idpeca)) {
+            console.log("Adicionou a peça na os");
             await pool.query(
               "insert into descricaoservico (idordemdeservico,idpeca,quantidade, valor) values($1,$2,$3,$4)",
               [
