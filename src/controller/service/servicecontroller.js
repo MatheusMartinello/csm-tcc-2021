@@ -219,6 +219,7 @@ const service = {
     idoficina,
   }) {
     try {
+      let valorTotal = 0;
       await pool.query("begin");
       console.log(pecas);
       if (pecas != null || pecas != undefined) {
@@ -231,7 +232,7 @@ const service = {
         const queryRemoveStock =
           "update estoque set quantidade = quantidade - $1 where idoficina = $2 and idpeca = $3";
         for (const element of pecas) {
-          const { nome, valorunitario, quantidade, idpeca = null } = element;
+          const { nome, valorunitario, quantidade, idpeca } = element;
           console.log(element);
           if (idpeca == null) {
             const peca = await pool.query(queryAddPeca, [nome, valorunitario]);
@@ -252,6 +253,7 @@ const service = {
               valorunitario * quantidade,
               idpeca,
             ]);
+            valorTotal += valorunitario * quantidade;
             await pool.query(queryRemoveStock, [quantidade, idoficina, idpeca]);
           }
         }
@@ -292,8 +294,13 @@ const service = {
               idordemdeservico,
             ]);
           }
+          valorTotal += valor * qnthoras;
         }
       }
+      await pool.query(
+        "update ordemdeservico set valortotal = $1 where idordemdeservico = $2",
+        [valorTotal, idordemdeservico]
+      );
       await pool.query("end");
       return true;
     } catch (error) {
