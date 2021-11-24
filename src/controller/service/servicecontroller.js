@@ -52,10 +52,12 @@ const service = {
       let valorTotal = 0;
       for (const element of pecas) {
         const { idpeca, qnt } = element;
+        console.log("O id da pecas atual:" + idpeca);
         const peca = await pool.query(
           "Select * from pecas where idpeca = $1 ",
           [idpeca]
         );
+        console.log(peca);
         await pool.query(
           "insert into descricaoservico (idordemdeservico,idpeca,quantidade, valor) values($1,$2,$3,$4)",
           [
