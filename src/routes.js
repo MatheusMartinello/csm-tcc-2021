@@ -395,6 +395,7 @@ routes.post("/workspace/get/service", auth.validadeToken, async (req, res) => {
 });
 routes.put("/workspace/put/service", auth.validadeToken, async (req, res) => {
   try {
+    console.log(req.body);
     const serviceResult = await service.UpdateService(req.body);
     return res.send({
       success: true,

@@ -221,6 +221,7 @@ const service = {
     try {
       let valorTotal = 0;
       await pool.query("begin");
+      console.log(idordemdeservico);
       console.log(pecas);
       if (pecas != null || pecas != undefined) {
         const queryP =
