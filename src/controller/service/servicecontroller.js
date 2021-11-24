@@ -267,12 +267,7 @@ const service = {
             console.log("Adicionou a peça na os");
             await pool.query(
               "insert into descricaoservico (idordemdeservico,idpeca,quantidade, valor) values($1,$2,$3,$4)",
-              [
-                idordemdeservico,
-                peca.rows[0].idpeca,
-                quantidade,
-                valorunitario * quantidade,
-              ]
+              [idordemdeservico, idpeca, quantidade, valorunitario * quantidade]
             );
           }
           console.log("Valor total: " + valorTotal);
