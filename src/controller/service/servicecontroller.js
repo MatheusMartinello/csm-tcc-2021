@@ -266,6 +266,10 @@ const service = {
           if (!descOs.rows.some((item) => item === idpeca)) {
             console.log("Adicionou a peça na os");
             await pool.query(
+              "delete from descricaoservico where idpeca = $1 and idordemdeservico= $2",
+              [idpeca, idordemdeservico]
+            );
+            await pool.query(
               "insert into descricaoservico (idordemdeservico,idpeca,quantidade, valor) values($1,$2,$3,$4)",
               [idordemdeservico, idpeca, quantidade, valorunitario * quantidade]
             );
