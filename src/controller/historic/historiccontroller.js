@@ -13,7 +13,7 @@ const historic = {
   },
   async GetListHistoricForUsers({ placa }) {
     const query =
-      "select o.idordemdeservico, o.descricao, c.idcarro ,c.modelo, c.placa, c.marca, o.car_km from ordemdeservico o " +
+      "select o.idordemdeservico, o.descricao, c.idcarro ,c.modelo, c.placa, c.marca, o.car_km, to_char(o.createat, 'DD/MM/YYYY') as createat from ordemdeservico o " +
       "left join descricaoservico d on d.idordemdeservico = o.idordemdeservico " +
       "left join carro c on c.idcarro = o.idcarro " +
       "where c.placa = $1 " +
@@ -23,7 +23,7 @@ const historic = {
   },
   async GetServiceRestricted({ idordemservico }) {
     const query =
-      "select createAt,car_km from ordemdeservico where idordemdeservico = $1";
+      "select to_char(createat, 'DD/MM/YYYY') as createat,car_km, descricao from ordemdeservico where idordemdeservico = $1";
     const getOS = await pool.query(query, [idordemservico]);
     const getParts = await this.GetPartsRestricted(idordemservico);
     const result = {
