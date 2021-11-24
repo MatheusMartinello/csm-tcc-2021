@@ -258,7 +258,7 @@ const service = {
             await pool.query(queryRemoveStock, [quantidade, idoficina, idpeca]);
           }
           const descOs = await pool.query(
-            "select idpeca from descricaoservico where idordemservico = $1",
+            "select idpeca from descricaoservico where idordemdeservico = $1",
             [idordemdeservico]
           );
           if (!descOs.rows.some((item) => item === idpeca)) {
